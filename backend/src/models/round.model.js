@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const scoreSchema = new mongoose.Schema(
+const roundSchema = new mongoose.Schema(
   {
     playerId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -24,9 +24,15 @@ const scoreSchema = new mongoose.Schema(
     scores: {
       type: [Number],
       required: true,
+      validate: {
+        validator: function (arr) {
+          return arr.every((score) => score > 0 && Number.isInteger(score));
+        },
+        message: "All scores must be positive integers.",
+      },
     },
   },
   { timestamps: true },
 );
 
-module.exports = mongoose.model("Score", scoreSchema);
+module.exports = mongoose.model("Round", roundSchema);
