@@ -2,10 +2,19 @@ const express = require("express");
 const router = express.Router();
 const Course = require("../models/course.model");
 
-// GET all courses
+// GET all courses OR SEARCH using query parameters
 router.get("/", async (req, res) => {
   try {
-    const courses = await Course.find();
+    const { search } = req.query;
+    let courses;
+
+    if (search) {
+      // If a search query is provided, use the text index
+      courses = await Course.find({ $text: { $search: search } });
+    } else {
+      // Otherwise, return all courses
+      courses = await Course.find();
+    }
     res.json(courses);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -18,16 +27,6 @@ router.get("/:id", async (req, res) => {
     const course = await Course.findById(req.params.id);
     if (!course) return res.status(404).json({ message: "Course not found" });
     res.json(course);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// SEARCH courses (text index)
-router.get("/search/:query", async (req, res) => {
-  try {
-    const courses = await Course.find({ $text: { $search: req.params.query } });
-    res.json(courses);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
