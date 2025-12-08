@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun BottomNavBar(
+fun NavigationBar(
     currentRoute: String,
     onItemSelected: (NavigationItem) -> Unit,
     modifier: Modifier = Modifier

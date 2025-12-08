@@ -23,7 +23,7 @@ fun RootScreen() {
     Scaffold(
         bottomBar = {
             // Displays the three-item navigation bar
-            BottomNavBar(
+            NavigationBar(
                 currentRoute = currentRoute,
                 onItemSelected = { item ->
                     // 1. Update the local state
@@ -51,8 +51,13 @@ fun RootScreen() {
                     NewGameScreen(modifier = Modifier.fillMaxSize())
                 }
                 NavigationItem.Courses.route -> {
-                    // Displays the dedicated Courses Screen
-                    CoursesScreen(modifier = Modifier.fillMaxSize())
+                    val vm: CoursesViewModel = viewModel(factory = CoursesViewModel.Factory)
+
+                    CoursesScreen(
+                        uiState = vm.uiState,
+                        onRefresh = { vm.loadCourses(forceRefresh = true) },
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }
