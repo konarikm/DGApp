@@ -3,12 +3,15 @@ const router = express.Router();
 const Round = require("../models/round.model");
 const Course = require("../models/course.model");
 
+const PLAYER_FIELDS = "name pdgaNumber email";
+const COURSE_FIELDS = "name numberOfHoles parValues";
+
 // GET all rounds
 router.get("/", async (req, res) => {
   try {
     const rounds = await Round.find()
-      .populate("playerId", "name pdgaNumber email")
-      .populate("courseId", "name numberOfHoles parValues");
+      .populate("player", PLAYER_FIELDS)
+      .populate("course", COURSE_FIELDS);
     res.json(rounds);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -19,8 +22,8 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const round = await Round.findById(req.params.id)
-      .populate("playerId", "name pdgaNumber email")
-      .populate("courseId", "name numberOfHoles parValues");
+      .populate("player", PLAYER_FIELDS)
+      .populate("course", COURSE_FIELDS);
     if (!round) return res.status(404).json({ message: "Round not found" });
     res.json(round);
   } catch (err) {
@@ -29,12 +32,12 @@ router.get("/:id", async (req, res) => {
 });
 
 // GET rounds by playerID
-router.get("/player/:playerId", async (req, res) => {
+router.get("/player/:id", async (req, res) => {
   try {
-    const rounds = await Round.find({ playerId: req.params.playerId }).populate(
-      "courseId",
-      "name numberOfHoles parValues",
-    );
+    const rounds = await Round.find({ player: req.params.id })
+      .populate("player", PLAYER_FIELDS)
+      .populate("course", COURSE_FIELDS);
+
     res.json(rounds);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -42,12 +45,11 @@ router.get("/player/:playerId", async (req, res) => {
 });
 
 // GET rounds by courseID
-router.get("/course/:courseId", async (req, res) => {
+router.get("/course/:id", async (req, res) => {
   try {
-    const rounds = await Round.find({ courseId: req.params.courseId }).populate(
-      "playerId",
-      "name pdgaNumber",
-    );
+    const rounds = await Round.find({ course: req.params.id })
+      .populate("player", PLAYER_FIELDS)
+      .populate("course", COURSE_FIELDS);
     res.json(rounds);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -56,25 +58,25 @@ router.get("/course/:courseId", async (req, res) => {
 
 // CREATE round
 router.post("/", async (req, res) => {
-  const { playerId, courseId, scores } = req.body;
+  const { player, course: courseId, scores } = req.body;
 
   try {
     // Check if the course exists and get its hole count (BUSINESS LOGIC)
-    const course = await Course.findById(courseId);
-    if (!course) {
+    const courseDoc = await Course.findById(courseId);
+    if (!courseDoc) {
       return res.status(404).json({ message: "Course not found." });
     }
 
     // Validate that the scores array length matches the course's number of holes
-    if (scores.length !== course.numberOfHoles) {
+    if (scores.length !== courseDoc.numberOfHoles) {
       return res.status(400).json({
-        message: `Scores array must contain ${course.numberOfHoles} scores, but received ${scores.length}.`,
+        message: `Scores array must contain ${courseDoc.numberOfHoles} scores, but received ${scores.length}.`,
       });
     }
 
     const round = new Round({
-      playerId,
-      courseId,
+      player,
+      course: courseId,
       scores,
       date: new Date(),
     });
@@ -82,7 +84,6 @@ router.post("/", async (req, res) => {
     const newRound = await round.save();
     res.status(201).json(newRound);
   } catch (err) {
-    // Catches Mongoose validation errors (e.g., scores are not positive integers)
     res.status(400).json({ message: err.message });
   }
 });

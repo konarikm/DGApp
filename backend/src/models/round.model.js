@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 
 const roundSchema = new mongoose.Schema(
   {
-    playerId: {
+    player: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Player",
       required: true,
     },
-    courseId: {
+    course: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Course",
       required: true,
