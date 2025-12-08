@@ -7,7 +7,6 @@ import cz.utb.fai.dgapp.data.mappers.toDomain
 import cz.utb.fai.dgapp.data.mappers.toEntity
 import cz.utb.fai.dgapp.domain.Round
 
-
 class DefaultRoundRepository(
     private val remoteDataSource: RoundRemoteDataSource,
     private val localDataSource: RoundLocalDataSource,

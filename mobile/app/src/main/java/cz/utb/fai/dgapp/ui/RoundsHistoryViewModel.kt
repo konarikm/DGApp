@@ -14,11 +14,7 @@ import cz.utb.fai.dgapp.data.remote.RoundRemoteDataSource
 import cz.utb.fai.dgapp.domain.RoundRepository
 import kotlinx.coroutines.launch
 
-
-class RoundsHistoryViewModel(
-    private val repository: RoundRepository
-) : ViewModel() {
-
+class RoundsHistoryViewModel(private val repository: RoundRepository) : ViewModel() {
     var uiState by mutableStateOf(RoundsHistoryUiState(isLoading = true))
         private set
 
@@ -44,7 +40,6 @@ class RoundsHistoryViewModel(
                     errorMessage = e.message ?: "Unknown error"
                 )
             }
-
         }
     }
 

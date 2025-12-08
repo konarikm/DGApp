@@ -1,6 +1,5 @@
 package cz.utb.fai.dgapp.ui
 
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +10,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cz.utb.fai.dgapp.domain.Round
 
+/**
+ * Dedicated screen for viewing previous rounds recorded.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoundsHistoryScreen(
