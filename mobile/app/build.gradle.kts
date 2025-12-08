@@ -66,13 +66,17 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.androidx.compose.material.icons.extended)
+
     // Hilt (DI)
     // implementation(libs.hilt.android)
     // implementation(libs.hilt.android.compiler)
 
     // Hilt for ViewModel
     // implementation(libs.androidx.hilt.navigation.compose)
-     // implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
+    // implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
     implementation(libs.androidx.room.runtime)
 
