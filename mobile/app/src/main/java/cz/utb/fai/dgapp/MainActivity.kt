@@ -3,44 +3,46 @@ package cz.utb.fai.dgapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import cz.utb.fai.dgapp.ui.RoundListScreen
+import cz.utb.fai.dgapp.ui.RoundListViewModel
 import cz.utb.fai.dgapp.ui.theme.DGAppTheme
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             DGAppTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
+                Surface {
+                    val vm: RoundListViewModel = viewModel ( factory = RoundListViewModel.Factory)
+
+                    RoundListScreen(
+                        uiState = vm.uiState,
+                        onRefresh = { vm.loadRounds(forceRefresh = true) }
+                    )
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun RoundPreview() {
     DGAppTheme {
-        Greeting("Android")
+        Surface {
+            val vm: RoundListViewModel =
+                viewModel ( factory = RoundListViewModel.Factory)
+
+            RoundListScreen(
+                uiState = vm.uiState,
+                onRefresh = { vm.loadRounds(forceRefresh = true) }
+            )
+        }
     }
 }
