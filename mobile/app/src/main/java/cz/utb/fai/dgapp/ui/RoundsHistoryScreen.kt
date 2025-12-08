@@ -13,15 +13,15 @@ import cz.utb.fai.dgapp.domain.Round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RoundListScreen(
-    uiState: RoundListUiState,
+fun RoundsHistoryScreen(
+    uiState: RoundsHistoryUiState,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Rounds Demo") },
+                title = { Text("Rounds History") },
                 actions = {
                     TextButton(onClick = onRefresh) {
                         Text("Refresh")

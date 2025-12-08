@@ -15,11 +15,11 @@ import cz.utb.fai.dgapp.domain.RoundRepository
 import kotlinx.coroutines.launch
 
 
-class RoundListViewModel(
+class RoundsHistoryViewModel(
     private val repository: RoundRepository
 ) : ViewModel() {
 
-    var uiState by mutableStateOf(RoundListUiState(isLoading = true))
+    var uiState by mutableStateOf(RoundsHistoryUiState(isLoading = true))
         private set
 
     init {
@@ -32,13 +32,13 @@ class RoundListViewModel(
 
             try {
                 val rounds = repository.getRounds(forceRefresh)
-                uiState = RoundListUiState(
+                uiState = RoundsHistoryUiState(
                     isLoading = false,
                     rounds = rounds,
                     errorMessage = null
                 )
             } catch (e: Exception){
-                uiState = RoundListUiState(
+                uiState = RoundsHistoryUiState(
                     isLoading = false,
                     rounds = emptyList(),
                     errorMessage = e.message ?: "Unknown error"
@@ -54,7 +54,7 @@ class RoundListViewModel(
                 val remote = RoundRemoteDataSource()
                 val local = RoundLocalDataSource()
                 val repo = DefaultRoundRepository(remote, local)
-                RoundListViewModel(repo)
+                RoundsHistoryViewModel(repo)
             }
         }
     }
