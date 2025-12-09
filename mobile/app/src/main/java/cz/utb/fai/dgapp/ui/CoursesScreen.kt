@@ -11,9 +11,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cz.utb.fai.dgapp.domain.Course
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 
 /**
  * Dedicated screen for viewing and managing disc golf courses.
@@ -24,6 +27,7 @@ fun CoursesScreen(
     uiState: CoursesUiState,
     onRefresh: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
+    onAddNewCourseClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -31,10 +35,20 @@ fun CoursesScreen(
             TopAppBar(
                 title = { Text("Courses") },
                 actions = {
-                    // Only show the Refresh button if not actively searching
+                    // 1. Add New Course Button (Primary action, always visible)
+                    IconButton(onClick = onAddNewCourseClick) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Add New Course",
+                        )
+                    }
+                    // 2. Refresh Button (Secondary action, hidden during search)
                     if (uiState.searchQuery.isEmpty()) {
-                        TextButton(onClick = onRefresh) {
-                            Text("Refresh")
+                        IconButton(onClick = onRefresh) {
+                            Icon(
+                                Icons.Default.Refresh,
+                                contentDescription = "Refresh Courses",
+                            )
                         }
                     }
                 }

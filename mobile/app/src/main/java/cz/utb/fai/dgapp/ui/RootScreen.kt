@@ -21,19 +21,18 @@ fun RootScreen() {
     // Simulate navigation state (In a real app, use NavController)
     var currentRoute by remember { mutableStateOf(NavigationItem.NewGame.route) }
 
+    var showAddNewCourseForm by remember { mutableStateOf(false) }
+
+
     Scaffold(
         bottomBar = {
-            // Displays the three-item navigation bar
-            NavigationBar(
-                currentRoute = currentRoute,
-                onItemSelected = { item ->
-                    // 1. Update the local state
-                    currentRoute = item.route
-
-                    // 2. In a real app, this would be:
-                    // navController.navigate(item.route)
-                }
-            )
+            // Hide the bottom bar when navigating to the Add New Course form
+            if (!showAddNewCourseForm) {
+                NavigationBar(
+                    currentRoute = currentRoute,
+                    onItemSelected = { item -> currentRoute = item.route }
+                )
+            }
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
@@ -42,7 +41,7 @@ fun RootScreen() {
                     val vm: RoundsHistoryViewModel = viewModel(factory = RoundsHistoryViewModel.Factory)
 
                     RoundsHistoryScreen(
-                        uiState = vm.uiState,
+                        uiState = vm.uiState.collectAsState().value,
                         onRefresh = { vm.loadRounds(forceRefresh = true) },
                         modifier = Modifier.fillMaxSize()
                     )
@@ -52,14 +51,25 @@ fun RootScreen() {
                     NewGameScreen(modifier = Modifier.fillMaxSize())
                 }
                 NavigationItem.Courses.route -> {
-                    val vm: CoursesViewModel = viewModel(factory = CoursesViewModel.Factory)
+                    if (showAddNewCourseForm) {
+                        // Display the Add New Course form
+                        AddNewCourseScreen(
+                            // When 'Back' button is clicked on the form, reset the state to show the list
+                            onBackClick = { showAddNewCourseForm = false },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        // Display the Courses List Screen
+                        val vm: CoursesViewModel = viewModel(factory = CoursesViewModel.Factory)
 
-                    CoursesScreen(
-                        uiState = vm.uiState.collectAsState().value,
-                        onRefresh = { vm.refreshCourses() },
-                        onSearchQueryChange = { vm.onSearchQueryChange(it) },
-                        modifier = Modifier.fillMaxSize()
-                    )
+                        CoursesScreen(
+                            uiState = vm.uiState.collectAsState().value,
+                            onRefresh = { vm.refreshCourses() },
+                            onSearchQueryChange = { vm.onSearchQueryChange(it) },
+                            onAddNewCourseClick = { showAddNewCourseForm = true },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }
