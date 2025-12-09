@@ -1,8 +1,5 @@
 package cz.utb.fai.dgapp.ui
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -12,11 +9,16 @@ import cz.utb.fai.dgapp.data.DefaultRoundRepository
 import cz.utb.fai.dgapp.data.local.RoundLocalDataSource
 import cz.utb.fai.dgapp.data.remote.RoundRemoteDataSource
 import cz.utb.fai.dgapp.domain.RoundRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RoundsHistoryViewModel(private val repository: RoundRepository) : ViewModel() {
-    var uiState by mutableStateOf(RoundsHistoryUiState(isLoading = true))
-        private set
+    private val _uiState = MutableStateFlow(RoundsHistoryUiState(isLoading = true))
+
+    val uiState: StateFlow<RoundsHistoryUiState> = _uiState.asStateFlow()
 
     init {
         loadRounds(forceRefresh = false)
@@ -24,21 +26,27 @@ class RoundsHistoryViewModel(private val repository: RoundRepository) : ViewMode
 
     fun loadRounds(forceRefresh: Boolean) {
         viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true, errorMessage = null)
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
                 val rounds = repository.getRounds(forceRefresh)
-                uiState = RoundsHistoryUiState(
-                    isLoading = false,
-                    rounds = rounds,
-                    errorMessage = null
-                )
+
+                // Update state on success
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        rounds = rounds
+                    )
+                }
             } catch (e: Exception){
-                uiState = RoundsHistoryUiState(
-                    isLoading = false,
-                    rounds = emptyList(),
-                    errorMessage = e.message ?: "Unknown error"
-                )
+                // Update state on failure
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        rounds = emptyList(),
+                        errorMessage = e.message ?: "Unknown error"
+                    )
+                }
             }
         }
     }
