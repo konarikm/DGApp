@@ -21,13 +21,21 @@ class CourseRemoteDataSource {
         parValues = listOf(3, 3, 3, 3, 3, 3, 3, 4, 3, 3)
     )
 
-    // FAKE REST - simulace síťového volání
-    suspend fun getCourses(): List<CourseApiDto> {
-        delay(1000)
+    private val allCourses = listOf(MOCK_COURSE_LAGUNA, MOCK_COURSE_TUCIN)
 
-        return listOf(
-            MOCK_COURSE_LAGUNA,
-            MOCK_COURSE_TUCIN,
-        )
+    // FAKE REST - simulace síťového volání
+    suspend fun getCourses(searchQuery: String): List<CourseApiDto> {
+        delay(500)
+
+        if (searchQuery.isBlank()) {
+            return allCourses // Return all courses if search is empty
+        }
+
+        val lowerQuery = searchQuery.lowercase()
+
+        // Simulate MongoDB Text Search (filtering based on name)
+        return allCourses.filter { course ->
+            course.name.lowercase().contains(lowerQuery)
+        }
     }
 }

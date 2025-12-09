@@ -11,17 +11,20 @@ class DefaultCourseRepository(
     private val remoteDataSource: CourseRemoteDataSource,
     private val localDataSource: CourseLocalDataSource,
 ) : CourseRepository {
-    override suspend fun getCourses(forceRefresh: Boolean): List<Course>{
-        val local = localDataSource.getCourses()
+    override suspend fun getCourses(searchQuery: String, forceRefresh: Boolean): List<Course>{
+        if (searchQuery.isNotBlank()) {
+            val remoteDtos = remoteDataSource.getCourses(searchQuery)
+            return remoteDtos.map { it.toDomain() }
+        }
 
+        val local = localDataSource.getCourses()
         val shouldRefresh = forceRefresh || local.isEmpty()
 
         return if (shouldRefresh) {
-            val remoteDtos = remoteDataSource.getCourses()
+            val remoteDtos = remoteDataSource.getCourses(searchQuery = "")
             val domainCourses = remoteDtos.map{ it.toDomain() }
 
-            val entities = domainCourses.map{ it.toEntity() }
-            localDataSource.saveCourses(entities)
+            localDataSource.saveCourses(domainCourses.map{ it.toEntity() })
 
             domainCourses
         } else {

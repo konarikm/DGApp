@@ -10,6 +10,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cz.utb.fai.dgapp.domain.Course
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.ui.Modifier
 
 /**
  * Dedicated screen for viewing and managing disc golf courses.
@@ -19,6 +23,7 @@ import cz.utb.fai.dgapp.domain.Course
 fun CoursesScreen(
     uiState: CoursesUiState,
     onRefresh: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -26,45 +31,69 @@ fun CoursesScreen(
             TopAppBar(
                 title = { Text("Courses") },
                 actions = {
-                    TextButton(onClick = onRefresh) {
-                        Text("Refresh")
+                    // Only show the Refresh button if not actively searching
+                    if (uiState.searchQuery.isEmpty()) {
+                        TextButton(onClick = onRefresh) {
+                            Text("Refresh")
+                        }
                     }
                 }
             )
         }
-    ) {
-            padding ->
-        Box (
-            modifier = Modifier
+    ) { padding ->
+        Column(
+            modifier = modifier
                 .fillMaxSize()
                 .padding(padding)
+                .padding(horizontal = 16.dp)
         ) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
+            // Search field
+            OutlinedTextField(
+                value = uiState.searchQuery,
+                onValueChange = onSearchQueryChange,
+                label = { Text("Search course by name") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search Icon") },
+                trailingIcon = {
+                    if (uiState.searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { onSearchQueryChange("") }) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear Search")
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 16.dp)
+            )
 
-                uiState.errorMessage != null -> {
-                    Text(
-                        text = uiState.errorMessage,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
+            // Content based on state
+            Box (modifier = Modifier.fillMaxSize()) {
+                when {
+                    uiState.isLoading -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
 
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(
-                            items = uiState.courses,
-                            key = { course -> course.id },
-                        ) { course ->
-                            CourseItem(course)
+                    uiState.errorMessage != null -> {
+                        Text(
+                            text = uiState.errorMessage,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(
+                                items = uiState.courses,
+                                key = { course -> course.id },
+                            ) { course ->
+                                CourseItem(course)
+                            }
                         }
                     }
                 }
@@ -87,6 +116,10 @@ fun CourseItem(course: Course) {
             )
             course.location?.let { Text(text = it, fontStyle = FontStyle.Italic) }
             Text(text = "Par: $totalPar")
+
+            course.description?.let {
+                Text(text = it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
+            }
         }
     }
 }

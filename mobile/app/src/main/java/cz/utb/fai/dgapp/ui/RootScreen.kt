@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,8 +55,9 @@ fun RootScreen() {
                     val vm: CoursesViewModel = viewModel(factory = CoursesViewModel.Factory)
 
                     CoursesScreen(
-                        uiState = vm.uiState,
-                        onRefresh = { vm.loadCourses(forceRefresh = true) },
+                        uiState = vm.uiState.collectAsState().value,
+                        onRefresh = { vm.refreshCourses() },
+                        onSearchQueryChange = { vm.onSearchQueryChange(it) },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
