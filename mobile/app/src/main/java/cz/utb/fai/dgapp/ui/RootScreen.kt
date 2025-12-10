@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,9 +40,10 @@ fun RootScreen() {
             when (currentRoute) {
                 NavigationItem.History.route -> {
                     val vm: RoundsHistoryViewModel = viewModel(factory = RoundsHistoryViewModel.Factory)
+                    val uiState by vm.uiState.collectAsState()
 
                     RoundsHistoryScreen(
-                        uiState = vm.uiState.collectAsState().value,
+                        uiState = uiState,
                         onRefresh = { vm.loadRounds(forceRefresh = true) },
                         modifier = Modifier.fillMaxSize()
                     )
@@ -51,21 +53,31 @@ fun RootScreen() {
                     NewGameScreen(modifier = Modifier.fillMaxSize())
                 }
                 NavigationItem.Courses.route -> {
+                    val vm: CoursesViewModel = viewModel(factory = CoursesViewModel.Factory)
+                    val uiState by vm.uiState.collectAsState()
+
+                    // Side effect: Automatically navigate back to the list after a successful save
+                    LaunchedEffect(uiState.saveSuccessMessage) {
+                        if (uiState.saveSuccessMessage != null && showAddNewCourseForm) {
+                            showAddNewCourseForm = false
+                        }
+                    }
+
                     if (showAddNewCourseForm) {
                         // Display the Add New Course form
                         AddNewCourseScreen(
                             // When 'Back' button is clicked on the form, reset the state to show the list
                             onBackClick = { showAddNewCourseForm = false },
+                            onSaveCourse = { formState -> vm.saveNewCourse(formState) },
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
                         // Display the Courses List Screen
-                        val vm: CoursesViewModel = viewModel(factory = CoursesViewModel.Factory)
-
                         CoursesScreen(
-                            uiState = vm.uiState.collectAsState().value,
+                            uiState = uiState,
                             onRefresh = { vm.refreshCourses() },
                             onSearchQueryChange = { vm.onSearchQueryChange(it) },
+                            onClearSaveStatus = { vm.clearSaveStatus() },
                             onAddNewCourseClick = { showAddNewCourseForm = true },
                             modifier = Modifier.fillMaxSize()
                         )

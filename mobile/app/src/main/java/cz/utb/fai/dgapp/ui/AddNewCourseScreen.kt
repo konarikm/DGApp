@@ -1,11 +1,7 @@
 package cz.utb.fai.dgapp.ui
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -16,26 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import java.util.Collections
-
-/**
- * Data class to hold the mutable state of the new course form.
- * Uses Int for Par, initialized to default par (3).
- */
-data class NewCourseFormState(
-    val name: String = "",
-    val location: String = "",
-    val description: String = "",
-    val numberOfHoles: Int = 9
-) {
-    /**
-     * Helper to generate the default list of Par 3 values based on the hole count.
-     */
-    val defaultParValues: List<Int>
-        get() = Collections.nCopies(numberOfHoles, 3)
-}
 
 
 /**
@@ -46,7 +23,7 @@ data class NewCourseFormState(
 @Composable
 fun AddNewCourseScreen(
     onBackClick: () -> Unit,
-    // Future: onSaveCourse: (NewCourseFormState) -> Unit,
+    onSaveCourse: (NewCourseFormState) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // State of the entire form, preserved across configuration changes
@@ -75,12 +52,7 @@ fun AddNewCourseScreen(
             BottomAppBar {
                 Button(
                     onClick = {
-                        // Generate final list of PAR values (all 3s)
-                        val parValuesToSave = formState.defaultParValues
-
-                        // Future: Logic to call ViewModel to save the course
-                        // onSaveCourse(formState, parValuesToSave)
-                        println("Attempting to save: ${formState.name} with ${formState.numberOfHoles} holes and Pars: $parValuesToSave")
+                        onSaveCourse(formState)
                     },
                     enabled = isFormValid,
                     modifier = Modifier
@@ -124,7 +96,7 @@ fun AddNewCourseScreen(
                 onValueChange = { formState = formState.copy(description = it) },
                 label = { Text("Description") },
                 minLines = 3,
-                maxLines = 5,
+                maxLines = 6,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(24.dp))

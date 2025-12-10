@@ -38,4 +38,23 @@ class CourseRemoteDataSource {
             course.name.lowercase().contains(lowerQuery)
         }
     }
+
+    /**
+     * FAKE REST implementation - simulates creating a new course via POST to /api/courses
+     */
+    suspend fun createCourse(courseDto: CourseCreateApiDto): CourseApiDto {
+        delay(800) // Simulate network latency
+
+        // Simulate successful ID generation by MongoDB
+        val generatedId = "60e1f3b0c5d2a9f8e7d6b5aX" // Mock ID
+
+        return CourseApiDto(
+            id = generatedId,
+            name = courseDto.name,
+            location = courseDto.location,
+            numberOfHoles = courseDto.numberOfHoles,
+            parValues = courseDto.parValues,
+            description = courseDto.description
+        )
+    }
 }

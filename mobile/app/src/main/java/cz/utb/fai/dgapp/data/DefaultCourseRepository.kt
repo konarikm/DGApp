@@ -5,6 +5,7 @@ import cz.utb.fai.dgapp.data.remote.CourseRemoteDataSource
 import cz.utb.fai.dgapp.domain.CourseRepository
 import cz.utb.fai.dgapp.data.mappers.toDomain
 import cz.utb.fai.dgapp.data.mappers.toEntity
+import cz.utb.fai.dgapp.data.mappers.toApiDto
 import cz.utb.fai.dgapp.domain.Course
 
 class DefaultCourseRepository(
@@ -30,5 +31,19 @@ class DefaultCourseRepository(
         } else {
             local.map{ it.toDomain() }
         }
+    }
+
+    override suspend fun createCourse(course: Course): Course {
+        // 1. Convert Domain model to API DTO
+        // NOTE: The server needs CourseApiDto
+        val apiDto = course.toApiDto()
+
+        // 2. Call remote API to save the new course
+        val newCourseDto = remoteDataSource.createCourse(apiDto)
+
+        // 3. Convert response back to Domain model (which now includes the new ID)
+        val newCourseDomain = newCourseDto.toDomain()
+
+        return newCourseDomain
     }
 }

@@ -15,8 +15,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 
 /**
  * Dedicated screen for viewing and managing disc golf courses.
@@ -28,9 +29,25 @@ fun CoursesScreen(
     onRefresh: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onAddNewCourseClick: () -> Unit,
+    onClearSaveStatus: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    uiState.saveSuccessMessage?.let { message ->
+        LaunchedEffect(message) {
+            // Display the message
+            snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+            // Clear the message in ViewModel after showing to prevent continuous display
+            onClearSaveStatus()
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Courses") },

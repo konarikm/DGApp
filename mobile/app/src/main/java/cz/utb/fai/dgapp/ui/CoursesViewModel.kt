@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import cz.utb.fai.dgapp.data.DefaultCourseRepository
 import cz.utb.fai.dgapp.data.local.CourseLocalDataSource
 import cz.utb.fai.dgapp.data.remote.CourseRemoteDataSource
+import cz.utb.fai.dgapp.domain.Course
 import cz.utb.fai.dgapp.domain.CourseRepository
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -39,6 +40,57 @@ class CoursesViewModel(private val repository: CourseRepository) : ViewModel() {
         // Force refresh only if the search box is empty (search handled by pipeline)
         if (searchQuery.value.isBlank()) {
             loadCourses(searchQuery.value, forceRefresh = true)
+        }
+    }
+
+    /**
+     * Called by the UI after showing the success Snackbar to clear the state.
+     */
+    fun clearSaveStatus() {
+        _uiState.update { it.copy(saveSuccessMessage = null) }
+    }
+
+    fun saveNewCourse(formState: NewCourseFormState) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true, errorMessage = null, saveSuccessMessage = null) }
+
+            // 1. Create the Domain Model from the Form State
+            val newCourse = Course(
+                // ID is empty, server will generate it
+                id = "",
+                name = formState.name,
+                location = formState.location,
+                description = formState.description,
+                numberOfHoles = formState.numberOfHoles,
+                // Generate default Par 3 values
+                parValues = formState.defaultParValues
+            )
+
+            try {
+                // 2. Call repository to create the course
+                repository.createCourse(newCourse)
+
+                // 3. Update state on success and trigger a list refresh
+                _uiState.update {
+                    it.copy(
+                        isSaving = false,
+                        saveSuccessMessage = "Course '${newCourse.name}' was created successfully.",
+                        errorMessage = null
+                    )
+                }
+                // Refresh the list view after successful save
+                loadCourses(searchQuery.value, forceRefresh = true)
+
+            } catch (e: Exception) {
+                // 4. Update state on failure
+                _uiState.update {
+                    it.copy(
+                        errorMessage = "Failed to save course: ${e.message}",
+                        isSaving = false,
+                        saveSuccessMessage = null
+                    )
+                }
+            }
         }
     }
 
