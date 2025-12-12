@@ -54,13 +54,20 @@ router.post("/", async (req, res) => {
 // UPDATE a course
 router.put("/:id", async (req, res) => {
   try {
-    const updatedCourse = await Course.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true },
-    );
-    if (!updatedCourse)
+    // 1. Find the existing course document by ID
+    const course = await Course.findById(req.params.id);
+    if (!course) {
       return res.status(404).json({ message: "Course not found" });
+    }
+
+    const { _id, ...updateData } = req.body;
+
+    // 2. Apply updates manually to the Mongoose document instance
+    Object.assign(course, updateData);
+
+    // 3. Save the updated document (triggers full validation and pre-save hooks)
+    const updatedCourse = await course.save();
+
     res.json(updatedCourse);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -73,7 +80,7 @@ router.delete("/:id", async (req, res) => {
     const deletedCourse = await Course.findByIdAndDelete(req.params.id);
     if (!deletedCourse)
       return res.status(404).json({ message: "Course not found" });
-    res.json({ message: "Course deleted" });
+    res.json({ message: "Course deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
