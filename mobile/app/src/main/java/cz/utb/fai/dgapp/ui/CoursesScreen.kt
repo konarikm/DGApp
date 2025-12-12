@@ -156,10 +156,6 @@ fun CourseItem(course: Course, onItemClick: (String) -> Unit) {
             )
             course.location?.let { Text(text = it, fontStyle = FontStyle.Italic) }
             Text(text = "Par: $totalPar")
-
-            course.description?.let {
-                Text(text = it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
-            }
         }
     }
 }

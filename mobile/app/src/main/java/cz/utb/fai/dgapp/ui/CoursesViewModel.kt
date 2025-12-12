@@ -53,6 +53,32 @@ class CoursesViewModel(private val repository: CourseRepository) : ViewModel() {
         _uiState.update { it.copy(saveSuccessMessage = null) }
     }
 
+    private fun loadCourses(query: String, forceRefresh: Boolean = false) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            try {
+                // Repository handles whether to search remote or load cache
+                val courses = repository.getCourses(query, forceRefresh)
+
+                _uiState.update {
+                    it.copy(
+                        courses = courses,
+                        isLoading = false,
+                        // Ensure searchQuery in UI state reflects the active query
+                        searchQuery = query
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        errorMessage = "Failed to load courses: ${e.message}",
+                        isLoading = false
+                    )
+                }
+            }
+        }
+    }
+
     fun getCourse(courseId: String) {
         viewModelScope.launch {
             _courseDetailState.update { it.copy(isLoading = true, errorMessage = null, course = null) }
@@ -122,25 +148,62 @@ class CoursesViewModel(private val repository: CourseRepository) : ViewModel() {
         }
     }
 
-    private fun loadCourses(query: String, forceRefresh: Boolean = false) {
+    fun updateCourse(course: Course) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            try {
-                // Repository handles whether to search remote or load cache
-                val courses = repository.getCourses(query, forceRefresh)
+            _uiState.update { it.copy(isSaving = true, errorMessage = null, saveSuccessMessage = null) }
 
+            try {
+                // 1. Call repository to update the course
+                repository.updateCourse(course)
+
+                // 2. Update state on success: set the success message
                 _uiState.update {
                     it.copy(
-                        courses = courses,
-                        isLoading = false,
-                        // Ensure searchQuery in UI state reflects the active query
-                        searchQuery = query
+                        isSaving = false,
+                        saveSuccessMessage = "Course updated successfully.",
+                        errorMessage = null
                     )
                 }
+                // 3. Refresh the list view after successful update
+                loadCourses(_searchQuery.value, forceRefresh = true)
+
             } catch (e: Exception) {
+                // 4. Update state on failure
                 _uiState.update {
                     it.copy(
-                        errorMessage = "Failed to load courses: ${e.message}",
+                        errorMessage = "Failed to update course: ${e.message}",
+                        isSaving = false,
+                        saveSuccessMessage = null
+                    )
+                }
+            }
+        }
+    }
+
+    fun deleteCourse(courseId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null, saveSuccessMessage = null) }
+
+            try {
+                // 1. Call repository to delete the course
+                repository.deleteCourse(courseId)
+
+                // 2. Update state on success
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        saveSuccessMessage = "Course deleted successfully.",
+                        errorMessage = null
+                    )
+                }
+                // 3. Refresh the list view after successful deletion
+                loadCourses(_searchQuery.value, forceRefresh = true)
+
+            } catch (e: Exception) {
+                // 4. Update state on failure
+                _uiState.update {
+                    it.copy(
+                        errorMessage = "Failed to delete course: ${e.message}",
                         isLoading = false
                     )
                 }
@@ -149,7 +212,6 @@ class CoursesViewModel(private val repository: CourseRepository) : ViewModel() {
     }
 
     // --- Factory (needed for integration with Compose) ---
-
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")

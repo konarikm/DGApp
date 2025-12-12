@@ -20,8 +20,20 @@ fun CourseApiDto.toDomain(): Course {
     )
 }
 
-// Domain -> REST
-fun Course.toApiDto(): CourseCreateApiDto {
+// Domain -> REST (for update/detail, includes ID)
+fun Course.toApiDto(): CourseApiDto {
+    return CourseApiDto(
+        id = this.id,
+        name = this.name,
+        location = this.location,
+        description = this.description,
+        numberOfHoles = this.numberOfHoles,
+        parValues = this.parValues
+    )
+}
+
+// Domain -> REST (for creation, NO ID)
+fun Course.toCreateApiDto(): CourseCreateApiDto {
     return CourseCreateApiDto(
         name = this.name,
         location = this.location,
@@ -52,7 +64,7 @@ fun Course.toEntity(): CourseEntity {
     return CourseEntity(
         id = this.id,
         name = this.name,
-        location = this.location,
+        location = this.location ?: "",
         description = this.description,
         numberOfHoles = this.numberOfHoles,
         parValuesJson = parValues

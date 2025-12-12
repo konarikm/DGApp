@@ -65,4 +65,10 @@ class CourseLocalDataSource {
         delay(100) // Simulate write latency
         cache[course.id] = course
     }
+
+    // Implements CourseRepository.deleteCourse logic (deletes a course)
+    suspend fun deleteCourse(id: String) {
+        delay(100) // Simulate write latency
+        cache.remove(id)
+    }
 }

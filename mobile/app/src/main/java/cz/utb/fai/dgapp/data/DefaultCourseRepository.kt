@@ -6,6 +6,7 @@ import cz.utb.fai.dgapp.domain.CourseRepository
 import cz.utb.fai.dgapp.data.mappers.toDomain
 import cz.utb.fai.dgapp.data.mappers.toEntity
 import cz.utb.fai.dgapp.data.mappers.toApiDto
+import cz.utb.fai.dgapp.data.mappers.toCreateApiDto
 import cz.utb.fai.dgapp.domain.Course
 
 class DefaultCourseRepository(
@@ -36,7 +37,7 @@ class DefaultCourseRepository(
     override suspend fun createCourse(course: Course): Course {
         // 1. Convert Domain model to API DTO
         // NOTE: The server needs CourseApiDto
-        val apiDto = course.toApiDto()
+        val apiDto = course.toCreateApiDto()
 
         // 2. Call remote API to save the new course
         val newCourseDto = remoteDataSource.createCourse(apiDto)
@@ -66,5 +67,31 @@ class DefaultCourseRepository(
 
             return domainCourse
         }
+    }
+
+    override suspend fun updateCourse(course: Course): Course {
+        // 1. Convert Domain model to API DTO
+        // Since it's an update, the DTO must contain the ID.
+        val apiDto = course.toApiDto()
+
+        // 2. Call remote API to update the course (PUT request)
+        // We assume remoteDataSource has an updateCourse method accepting the DTO
+        val updatedCourseDto = remoteDataSource.updateCourse(apiDto)
+
+        // 3. Convert response back to Domain model
+        val updatedCourseDomain = updatedCourseDto.toDomain()
+
+        // 4. Update local cache
+        localDataSource.saveCourse(updatedCourseDomain.toEntity())
+
+        return updatedCourseDomain
+    }
+
+    override suspend fun deleteCourse(id: String) {
+        // 1. Call remote API to delete the course
+        remoteDataSource.deleteCourse(id)
+
+        // 2. Remove from local cache
+        localDataSource.deleteCourse(id)
     }
 }

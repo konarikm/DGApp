@@ -20,4 +20,14 @@ interface CourseRepository {
      * Saves a new Course to the remote API and updates the local cache.
      */
     suspend fun createCourse(course: Course): Course
+
+    /**
+     * Updates an existing Course on the remote API and updates the local cache. (PUT)
+     */
+    suspend fun updateCourse(course: Course): Course
+
+    /**
+     * Deletes a Course by ID from the remote API and local cache. (DELETE)
+     */
+    suspend fun deleteCourse(id: String)
 }

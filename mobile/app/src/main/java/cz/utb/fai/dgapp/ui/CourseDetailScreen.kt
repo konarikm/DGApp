@@ -14,11 +14,16 @@ import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+
 
 /**
  * Screen for displaying details of a specific course.
@@ -38,6 +43,8 @@ fun CourseDetailScreen(
     onDeleteClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // State to control the visibility of the confirmation dialog
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
 
@@ -63,7 +70,7 @@ fun CourseDetailScreen(
                             Icon(Icons.Default.Edit, contentDescription = "Edit Course")
                         }
                         // Action 2: Delete Course
-                        IconButton(onClick = { onDeleteClick(courseId) }) {
+                        IconButton(onClick = { showDeleteDialog = true }) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete Course")
                         }
                     }
@@ -139,6 +146,45 @@ fun CourseDetailScreen(
                 }
             }
         }
+    }
+
+    // --- CONFIRMATION DIALOG ---
+    if (showDeleteDialog) {
+        val courseName = uiState.course?.name ?: "toto hřiště"
+        AlertDialog(
+            onDismissRequest = {
+                // Dismiss the dialog when the user clicks outside or presses back
+                showDeleteDialog = false
+            },
+            title = {
+                Text("Confirm Deletion")
+            },
+            text = {
+                Text("Do you really want to delete the course? This action cannot be undone.")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        // Execute delete action and dismiss dialog
+                        onDeleteClick(courseId)
+                        showDeleteDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        // Just dismiss the dialog
+                        showDeleteDialog = false
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 

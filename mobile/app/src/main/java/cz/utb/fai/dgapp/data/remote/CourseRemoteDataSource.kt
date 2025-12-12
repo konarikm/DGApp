@@ -70,4 +70,29 @@ class CourseRemoteDataSource {
             else -> throw NoSuchElementException("Course with ID $id not found on remote server.")
         }
     }
+
+    /**
+     * FAKE REST implementation - simulates updating an existing course (PUT)
+     * Takes the full CourseDetailApiDto which MUST include the ID.
+     */
+    suspend fun updateCourse(courseDto: CourseApiDto): CourseApiDto {
+        delay(800) // Simulate network latency
+
+        // Simulate successful update (returns the received DTO, confirming the change)
+        println("Simulating PUT request for course ID: ${courseDto.id}")
+        return courseDto
+    }
+
+    /**
+     * FAKE REST implementation - simulates deleting a course by ID.
+     */
+    suspend fun deleteCourse(id: String) {
+        delay(500) // Simulate network latency
+
+        // Mock check to simulate server success (no content returned)
+        if (id == "non-existent-id") {
+            throw NoSuchElementException("Course with ID $id not found for deletion.")
+        }
+        println("Simulating DELETE request for course ID: $id")
+    }
 }
