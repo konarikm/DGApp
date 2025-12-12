@@ -24,11 +24,12 @@ fun RootScreen() {
 
     var showAddNewCourseForm by remember { mutableStateOf(false) }
 
+    var selectedCourseId by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         bottomBar = {
-            // Hide the bottom bar when navigating to the Add New Course form
-            if (!showAddNewCourseForm) {
+            // Hide the bottom bar when adding a new course OR viewing a detail
+            if (!showAddNewCourseForm && selectedCourseId == null) {
                 NavigationBar(
                     currentRoute = currentRoute,
                     onItemSelected = { item -> currentRoute = item.route }
@@ -38,6 +39,7 @@ fun RootScreen() {
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             when (currentRoute) {
+                // History
                 NavigationItem.History.route -> {
                     val vm: RoundsHistoryViewModel = viewModel(factory = RoundsHistoryViewModel.Factory)
                     val uiState by vm.uiState.collectAsState()
@@ -48,39 +50,70 @@ fun RootScreen() {
                         modifier = Modifier.fillMaxSize()
                     )
                 }
+
+                // New Game
                 NavigationItem.NewGame.route -> {
                     // Displays the combined Home/New Game Screen
                     NewGameScreen(modifier = Modifier.fillMaxSize())
                 }
+
+                // Courses
                 NavigationItem.Courses.route -> {
                     val vm: CoursesViewModel = viewModel(factory = CoursesViewModel.Factory)
                     val uiState by vm.uiState.collectAsState()
 
                     // Side effect: Automatically navigate back to the list after a successful save
                     LaunchedEffect(uiState.saveSuccessMessage) {
-                        if (uiState.saveSuccessMessage != null && showAddNewCourseForm) {
+                        if (uiState.saveSuccessMessage != null && (showAddNewCourseForm || selectedCourseId != null)) {
                             showAddNewCourseForm = false
+                            selectedCourseId = null
                         }
                     }
 
-                    if (showAddNewCourseForm) {
-                        // Display the Add New Course form
-                        AddNewCourseScreen(
-                            // When 'Back' button is clicked on the form, reset the state to show the list
-                            onBackClick = { showAddNewCourseForm = false },
-                            onSaveCourse = { formState -> vm.saveNewCourse(formState) },
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        // Display the Courses List Screen
-                        CoursesScreen(
-                            uiState = uiState,
-                            onRefresh = { vm.refreshCourses() },
-                            onSearchQueryChange = { vm.onSearchQueryChange(it) },
-                            onClearSaveStatus = { vm.clearSaveStatus() },
-                            onAddNewCourseClick = { showAddNewCourseForm = true },
-                            modifier = Modifier.fillMaxSize()
-                        )
+                    when {
+                        // 1. Show Course Detail Screen
+                        selectedCourseId != null -> {
+                            // Collect the dedicated detail state from ViewModel
+                            val detailState by vm.courseDetailState.collectAsState()
+
+                            CourseDetailScreen(
+                                courseId = selectedCourseId!!,
+                                uiState = detailState,
+                                onFetchCourse = { id -> vm.getCourse(id) },
+                                onBackClick = { selectedCourseId = null },
+                                onEditClick = { id ->
+                                    // Future: Handle edit navigation (e.g., navigate to AddNewCourseScreen in edit mode)
+                                    println("Editing course: $id")
+                                },
+                                onDeleteClick = { id ->
+                                    // Future: Handle deletion (call VM function)
+                                    println("Deleting course: $id")
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+
+                        // 2. Show Add New Course Form
+                        showAddNewCourseForm -> {
+                            AddNewCourseScreen(
+                                onBackClick = { showAddNewCourseForm = false },
+                                onSaveCourse = { formState -> vm.saveNewCourse(formState) },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+
+                        // 3. Show Courses List Screen
+                        else -> {
+                            CoursesScreen(
+                                uiState = uiState,
+                                onRefresh = { vm.refreshCourses() },
+                                onSearchQueryChange = { vm.onSearchQueryChange(it) },
+                                onClearSaveStatus = { vm.clearSaveStatus() },
+                                onAddNewCourseClick = { showAddNewCourseForm = true },
+                                onCourseClick = { id -> selectedCourseId = id },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 }
             }

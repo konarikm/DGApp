@@ -12,6 +12,11 @@ interface CourseRepository {
     suspend fun getCourses(searchQuery: String = "", forceRefresh: Boolean = false): List<Course>
 
     /**
+     * Retrieves a single Course by its ID.
+     */
+    suspend fun getCourseById(id: String): Course
+
+    /**
      * Saves a new Course to the remote API and updates the local cache.
      */
     suspend fun createCourse(course: Course): Course

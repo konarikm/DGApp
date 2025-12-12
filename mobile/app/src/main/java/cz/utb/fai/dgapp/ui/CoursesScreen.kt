@@ -1,5 +1,6 @@
 package cz.utb.fai.dgapp.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,6 +31,7 @@ fun CoursesScreen(
     onSearchQueryChange: (String) -> Unit,
     onAddNewCourseClick: () -> Unit,
     onClearSaveStatus: () -> Unit,
+    onCourseClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -123,7 +125,10 @@ fun CoursesScreen(
                                 items = uiState.courses,
                                 key = { course -> course.id },
                             ) { course ->
-                                CourseItem(course)
+                                CourseItem(
+                                    course = course,
+                                    onItemClick = onCourseClick
+                                )
                             }
                         }
                     }
@@ -135,10 +140,14 @@ fun CoursesScreen(
 
 
 @Composable
-fun CourseItem(course: Course) {
+fun CourseItem(course: Course, onItemClick: (String) -> Unit) {
     val totalPar = course.parValues.sum()
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable{ onItemClick(course.id) }
+    ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(
                 text = course.name,

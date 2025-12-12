@@ -46,4 +46,25 @@ class DefaultCourseRepository(
 
         return newCourseDomain
     }
+
+    override suspend fun getCourseById(id: String): Course {
+        // 1. Try to get from local cache
+        val localEntity = localDataSource.getCourseById(id)
+
+        return if (localEntity != null) {
+            // Found in cache, convert and return
+            localEntity.toDomain()
+        } else {
+            // 2. Not found locally, fetch from remote
+            val remoteDto = remoteDataSource.getCourseById(id)
+
+            // 3. Convert DTO to Domain
+            val domainCourse = remoteDto.toDomain()
+
+            // 4. Cache the new data
+            localDataSource.saveCourse(domainCourse.toEntity())
+
+            return domainCourse
+        }
+    }
 }

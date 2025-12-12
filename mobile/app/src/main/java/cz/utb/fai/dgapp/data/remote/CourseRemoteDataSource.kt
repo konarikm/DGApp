@@ -57,4 +57,17 @@ class CourseRemoteDataSource {
             description = courseDto.description
         )
     }
+
+    /**
+     * FAKE REST implementation - simulates fetching a course by ID.
+     */
+    suspend fun getCourseById(id: String): CourseApiDto {
+        delay(300) // Simulate network latency
+
+        return when (id) {
+            MOCK_COURSE_LAGUNA.id -> MOCK_COURSE_LAGUNA
+            MOCK_COURSE_TUCIN.id -> MOCK_COURSE_TUCIN
+            else -> throw NoSuchElementException("Course with ID $id not found on remote server.")
+        }
+    }
 }

@@ -21,6 +21,9 @@ class CoursesViewModel(private val repository: CourseRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(CoursesUiState())
     val uiState: StateFlow<CoursesUiState> = _uiState.asStateFlow()
 
+    private val _courseDetailState = MutableStateFlow(CourseDetailUiState())
+    val courseDetailState: StateFlow<CourseDetailUiState> = _courseDetailState.asStateFlow()
+
     init {
         // This pipeline handles both initial load and search queries
         searchQuery
@@ -48,6 +51,31 @@ class CoursesViewModel(private val repository: CourseRepository) : ViewModel() {
      */
     fun clearSaveStatus() {
         _uiState.update { it.copy(saveSuccessMessage = null) }
+    }
+
+    fun getCourse(courseId: String) {
+        viewModelScope.launch {
+            _courseDetailState.update { it.copy(isLoading = true, errorMessage = null, course = null) }
+
+            try {
+                // Assuming repository has getCourseById method
+                val course = repository.getCourseById(courseId)
+
+                _courseDetailState.update {
+                    it.copy(
+                        course = course,
+                        isLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                _courseDetailState.update {
+                    it.copy(
+                        errorMessage = "Failed to load course details: ${e.message}",
+                        isLoading = false
+                    )
+                }
+            }
+        }
     }
 
     fun saveNewCourse(formState: NewCourseFormState) {
