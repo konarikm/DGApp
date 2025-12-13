@@ -21,6 +21,6 @@ const courseSchema = new mongoose.Schema(
 );
 
 // Text search index
-courseSchema.index({ name: "text", description: "text" });
+courseSchema.index({ name: "text", location: "text" });
 
 module.exports = mongoose.model("Course", courseSchema);

@@ -4,7 +4,7 @@ const Round = require("../models/round.model");
 const Course = require("../models/course.model");
 
 const PLAYER_FIELDS = "name pdgaNumber email";
-const COURSE_FIELDS = "name numberOfHoles parValues";
+const COURSE_FIELDS = "name location numberOfHoles description parValues";
 
 // GET all rounds
 router.get("/", async (req, res) => {
