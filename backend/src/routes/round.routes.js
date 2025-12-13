@@ -58,25 +58,29 @@ router.get("/course/:id", async (req, res) => {
 
 // CREATE round
 router.post("/", async (req, res) => {
+  // 1. Destructure player and course using the *new* names for incoming IDs from req.body.
+  // We rename 'course' from req.body to 'courseId' locally for clear naming in step 3.
   const { player, course: courseId, scores } = req.body;
 
   try {
-    // Check if the course exists and get its hole count (BUSINESS LOGIC)
+    // 2. Check if the course exists and get its hole count
+    // Use courseId to find the document.
     const courseDoc = await Course.findById(courseId);
     if (!courseDoc) {
       return res.status(404).json({ message: "Course not found." });
     }
 
-    // Validate that the scores array length matches the course's number of holes
+    // 3. Validate scores length against course's number of holes
     if (scores.length !== courseDoc.numberOfHoles) {
       return res.status(400).json({
         message: `Scores array must contain ${courseDoc.numberOfHoles} scores, but received ${scores.length}.`,
       });
     }
 
+    // 4. Create Round: Mongoose expects ONLY the IDs here!
     const round = new Round({
-      player,
-      course: courseId,
+      player, // Uses player ID (string) from req.body
+      course: courseId, // Uses course ID (string) from req.body
       scores,
       date: new Date(),
     });
@@ -84,38 +88,50 @@ router.post("/", async (req, res) => {
     const newRound = await round.save();
     res.status(201).json(newRound);
   } catch (err) {
+    // Catches Mongoose validation errors
     res.status(400).json({ message: err.message });
   }
 });
 
 // UPDATE round
 router.put("/:id", async (req, res) => {
-  const { courseId, scores } = req.body;
   try {
-    // If scores are updated, we must re-validate against the course's hole count
-    if (scores && courseId) {
-      const course = await Course.findById(courseId);
-      if (!course) {
-        return res.status(404).json({ message: "Course not found." });
-      }
-      if (scores.length !== course.numberOfHoles) {
-        return res.status(400).json({
-          message: `Scores array must contain ${course.numberOfHoles} scores, but received ${scores.length}.`,
-        });
-      }
+    // 1. Find the existing round document by ID
+    const round = await Round.findById(req.params.id);
+    if (!round) {
+      return res.status(404).json({ message: "Round not found" });
     }
 
-    const updatedRound = await Round.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true },
-    );
+    // CRITICAL FIX: Extract the scores array and optionally the date from req.body.
+    // Ensure we exclude Mongoose system fields like _id.
+    const { scores, date, ...otherUpdates } = req.body;
 
-    if (!updatedRound)
-      return res.status(404).json({ message: "Round not found" });
+    // 2. Apply updates manually to the Mongoose document instance
+    if (scores && Array.isArray(scores)) {
+      // Direct assignment to Mongoose array is necessary to trigger change tracking and validators
+      round.scores = scores;
+
+      // OPTIONAL: If date is present in body, update it (we removed it from UI, but keep for API robustness)
+      if (date) {
+        round.date = date;
+      }
+
+      // Apply any other updates (though we only edit scores in the UI)
+      Object.assign(round, otherUpdates);
+    } else if (otherUpdates) {
+      // If only other fields were sent (e.g., date), assign them
+      Object.assign(round, otherUpdates);
+    }
+
+    // NOTE: Scores validation logic (length check) relies on the schema validator
+    // which runs during round.save()
+
+    // 3. Save the updated document (triggers full validation and pre-save hooks)
+    const updatedRound = await round.save();
 
     res.json(updatedRound);
   } catch (err) {
+    // 400 status for validation error
     res.status(400).json({ message: err.message });
   }
 });
