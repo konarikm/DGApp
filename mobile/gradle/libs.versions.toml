@@ -1,6 +1,8 @@
 [versions]
 agp = "8.13.1"
-# hiltAndroid = "2.57.2"
+converterGson = "3.0.0"
+gson = "2.13.2"
+kotlinxSerializationJson = "1.9.0"
 ksp = "2.2.21-2.0.4"
 kotlin = "2.2.21"
 coreKtx = "1.17.0"
@@ -12,6 +14,8 @@ activityCompose = "1.12.1"
 composeBom = "2025.12.00"
 lifecycle = "2.10.0"
 material = "1.10.0"
+retrofit = "3.0.0"
+retrofit2KotlinxSerializationConverter = "1.0.0"
 roomCompiler = "2.8.4"
 runtime = "1.10.0"
 foundation = "1.10.0"
@@ -23,6 +27,8 @@ androidx-compose-material-icons-extended = { module = "androidx.compose.material
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompiler" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -44,17 +50,12 @@ androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-ru
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
-
-# Hilt
-# hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
-# hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
-
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit2KotlinxSerializationConverter" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp"}
-
-
-# hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }

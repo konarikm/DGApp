@@ -103,15 +103,26 @@ fun CourseDetailScreen(
                         modifier = Modifier.fillMaxWidth().verticalScroll(scrollState),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text(
-                            text = course.name,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                        course.location?.let { Text(text = it, fontStyle = FontStyle.Italic) }
-                        course.description?.let {
-                            Text(text = it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(
+                                text = course.name,
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            course.location?.takeIf { it.isNotBlank() }?.let { location ->
+                                Text(text = location, style = MaterialTheme.typography.titleMedium, fontStyle = FontStyle.Italic)
+                            }
                         }
+
+                        course.description?.takeIf { it.isNotBlank() }?.let { description ->
+                            HorizontalDivider()
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(text = "Description:", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                                Text(text = description, style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+
                         HorizontalDivider()
                         Text(text = "Number of Holes: ${course.numberOfHoles}", style = MaterialTheme.typography.titleMedium)
                         Text(text = "Total Par: ${course.parValues.sum()}", style = MaterialTheme.typography.titleMedium)

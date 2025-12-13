@@ -5,9 +5,6 @@ plugins {
 
     alias(libs.plugins.ksp)
 
-    // Hilt
-    // alias(libs.plugins.hilt.android)
-
     kotlin("plugin.serialization") version "2.2.21"
 }
 
@@ -72,14 +69,6 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
 
-    // Hilt (DI)
-    // implementation(libs.hilt.android)
-    // implementation(libs.hilt.android.compiler)
-
-    // Hilt for ViewModel
-    // implementation(libs.androidx.hilt.navigation.compose)
-    // implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
-
     implementation(libs.androidx.room.runtime)
 
     // Lifecycle + ViewModel + Compose integrace
@@ -90,7 +79,14 @@ dependencies {
     // Room DB
     ksp(libs.androidx.room.compiler)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    // Serialization
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.retrofit2.kotlinx.serialization.converter)
+
+    // Retrofit for HTTP calls (REST API)
+    implementation (libs.gson)
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
 
     configurations.all {
         exclude(group = "com.intellij", module = "annotations")

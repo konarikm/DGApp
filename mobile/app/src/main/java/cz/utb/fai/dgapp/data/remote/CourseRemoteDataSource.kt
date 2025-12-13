@@ -1,98 +1,74 @@
 package cz.utb.fai.dgapp.data.remote
 
-import kotlinx.coroutines.delay
 
-class CourseRemoteDataSource {
-    private val MOCK_COURSE_LAGUNA = CourseApiDto(
-        id = "6918e1e390ea5c4759d49dcc",
-        name = "DiscgolfPark Laguna Přerov",
-        location = "Přerov, Czechia",
-        description = "Hřiště ideální pro začátečníky rozprostírající se v okolí přerovské laguny",
-        numberOfHoles = 9,
-        parValues = listOf(3, 3, 3, 3, 3, 3, 3, 3, 3)
-    )
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Retrofit
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import java.text.Normalizer
 
-    private val MOCK_COURSE_TUCIN = CourseApiDto(
-        id = "6918e20c90ea5c4759d49dce",
-        name = "DiscgolfPark Tučín",
-        location = "Tučín, Czechia",
-        description = null,
-        numberOfHoles = 10,
-        parValues = listOf(3, 3, 3, 3, 3, 3, 3, 4, 3, 3)
-    )
+// --- Retrofit Setup ---
+private const val BASE_URL = "https://dgapp-api.onrender.com/"
+private val json = Json { ignoreUnknownKeys = true }
 
-    private val allCourses = listOf(MOCK_COURSE_LAGUNA, MOCK_COURSE_TUCIN)
+/**
+ * Creates the Retrofit instance and the CourseApiService implementation.
+ */
+private val retrofit: Retrofit = Retrofit.Builder()
+    .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+    .baseUrl(BASE_URL)
+    .build()
 
-    // FAKE REST - simulace síťového volání
-    suspend fun getCourses(searchQuery: String): List<CourseApiDto> {
-        delay(500)
+private val courseApiService: CourseApiService = retrofit.create(CourseApiService::class.java)
 
-        if (searchQuery.isBlank()) {
-            return allCourses // Return all courses if search is empty
-        }
+/**
+ * Actual implementation of the remote data source using Retrofit.
+ */
+class CourseRemoteDataSource{
 
-        val lowerQuery = searchQuery.lowercase()
-
-        // Simulate MongoDB Text Search (filtering based on name)
-        return allCourses.filter { course ->
-            course.name.lowercase().contains(lowerQuery)
-        }
+    // Utility function to remove accents and normalize text (retained for search logic consistency) ---
+    private fun String.stripAccents(): String {
+        val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
+        return normalized.replace("\\p{Mn}+".toRegex(), "")
     }
 
     /**
-     * FAKE REST implementation - simulates creating a new course via POST to /api/courses
+     * Implements GET ALL or GET by SEARCH from the API.
      */
-    suspend fun createCourse(courseDto: CourseCreateApiDto): CourseApiDto {
-        delay(800) // Simulate network latency
+    suspend fun getCourses(searchQuery: String): List<CourseApiDto> {
+        // If query is provided, send it; otherwise, send null to get all.
+        val apiQuery = if (searchQuery.isNotBlank()) searchQuery.stripAccents() else null
 
-        // Simulate successful ID generation by MongoDB
-        val generatedId = "60e1f3b0c5d2a9f8e7d6b5aX" // Mock ID
-
-        return CourseApiDto(
-            id = generatedId,
-            name = courseDto.name,
-            location = courseDto.location,
-            numberOfHoles = courseDto.numberOfHoles,
-            parValues = courseDto.parValues,
-            description = courseDto.description
-        )
+        // Use the Retrofit service to fetch data
+        return courseApiService.getCourses(apiQuery)
     }
 
     /**
-     * FAKE REST implementation - simulates fetching a course by ID.
+     * Implements GET by ID from the API.
      */
     suspend fun getCourseById(id: String): CourseApiDto {
-        delay(300) // Simulate network latency
-
-        return when (id) {
-            MOCK_COURSE_LAGUNA.id -> MOCK_COURSE_LAGUNA
-            MOCK_COURSE_TUCIN.id -> MOCK_COURSE_TUCIN
-            else -> throw NoSuchElementException("Course with ID $id not found on remote server.")
-        }
+        return courseApiService.getCourseById(id)
     }
 
     /**
-     * FAKE REST implementation - simulates updating an existing course (PUT)
-     * Takes the full CourseDetailApiDto which MUST include the ID.
+     * Implements CREATE (POST) via the API.
+     */
+    suspend fun createCourse(courseDto: CourseCreateApiDto): CourseApiDto {
+        return courseApiService.createCourse(courseDto)
+    }
+
+    /**
+     * Implements UPDATE (PUT) via the API.
      */
     suspend fun updateCourse(courseDto: CourseApiDto): CourseApiDto {
-        delay(800) // Simulate network latency
-
-        // Simulate successful update (returns the received DTO, confirming the change)
-        println("Simulating PUT request for course ID: ${courseDto.id}")
-        return courseDto
+        // We use the ID from the DTO in the path, and the DTO body for the update fields
+        return courseApiService.updateCourse(courseDto.id, courseDto)
     }
 
     /**
-     * FAKE REST implementation - simulates deleting a course by ID.
+     * Implements DELETE via the API.
      */
     suspend fun deleteCourse(id: String) {
-        delay(500) // Simulate network latency
-
-        // Mock check to simulate server success (no content returned)
-        if (id == "non-existent-id") {
-            throw NoSuchElementException("Course with ID $id not found for deletion.")
-        }
-        println("Simulating DELETE request for course ID: $id")
+        courseApiService.deleteCourse(id)
     }
 }
