@@ -104,7 +104,7 @@ router.put("/:id", async (req, res) => {
 
     // CRITICAL FIX: Extract the scores array and optionally the date from req.body.
     // Ensure we exclude Mongoose system fields like _id.
-    const { scores, date, ...otherUpdates } = req.body;
+    const { _id, scores, date, ...otherUpdates } = req.body;
 
     // 2. Apply updates manually to the Mongoose document instance
     if (scores && Array.isArray(scores)) {
@@ -131,7 +131,6 @@ router.put("/:id", async (req, res) => {
 
     res.json(updatedRound);
   } catch (err) {
-    // 400 status for validation error
     res.status(400).json({ message: err.message });
   }
 });
