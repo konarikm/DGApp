@@ -89,8 +89,8 @@ router.post("/", async (req, res) => {
     console.log("Jdu populovat ");
 
     newRound = await newRound
-      .populate("playerId", PLAYER_FIELDS)
-      .populate("courseId", COURSE_FIELDS);
+      .populate("player", PLAYER_FIELDS)
+      .populate("course", COURSE_FIELDS);
 
     console.log("Jsem hotov s populováním");
     res.status(201).json(newRound);
@@ -124,9 +124,6 @@ router.put("/:id", async (req, res) => {
 
     // 3. Save the updated document (triggers validation)
     let updatedRound = await round.save();
-
-    console.log("Updated round z backendu:");
-    console.log(updatedRound);
 
     res.json(updatedRound);
   } catch (err) {
