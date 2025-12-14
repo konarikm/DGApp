@@ -102,13 +102,27 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ message: "Round not found" });
     }
 
-    const { _id, ...updateData } = req.body;
+    // Deconstruct fields from req.body (assuming only scores and date are sent)
+    const { scores, date, ...otherUpdates } = req.body;
 
-    // 2. Apply updates manually to the Mongoose document instance
-    Object.assign(round, updateData);
+    // 2. Apply updates manually
+    if (scores && Array.isArray(scores)) {
+      round.scores = scores; // Direct assignment to trigger change tracking
+    }
+    if (date) {
+      round.date = date; // Update date
+    }
+    // Apply any other updates
+    Object.assign(round, otherUpdates);
 
-    // 3. Save the updated document (triggers full validation and pre-save hooks)
-    const updatedRound = await round.save();
+    // 3. Save the updated document (triggers validation)
+    let updatedRound = await round.save();
+
+    // CRITICAL FIX: Repopulate player and course details before sending the response
+    // The frontend expects the full, nested DTO structure (RoundApiDto).
+    updatedRound = await updatedRound
+      .populate("player", PLAYER_FIELDS)
+      .populate("course", COURSE_FIELDS);
 
     res.json(updatedRound);
   } catch (err) {
