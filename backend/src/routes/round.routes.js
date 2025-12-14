@@ -59,41 +59,29 @@ router.get("/course/:id", async (req, res) => {
 
 // CREATE round
 router.post("/", async (req, res) => {
-  // 1. Destructure player and course using the *new* names for incoming IDs from req.body.
-  const { player: playerId, course: courseId, scores } = req.body;
+  const { player, course, scores } = req.body;
   try {
-    // 2. Check if the course exists and get its hole count
-    // Use courseId to find the document.
-    const courseDoc = await Course.findById(courseId);
+    const courseDoc = await Course.findById(course);
     if (!courseDoc) {
       return res.status(404).json({ message: "Course not found." });
     }
 
-    // 3. Validate scores length against course's number of holes
     if (scores.length !== courseDoc.numberOfHoles) {
       return res.status(400).json({
         message: `Scores array must contain ${courseDoc.numberOfHoles} scores, but received ${scores.length}.`,
       });
     }
 
-    // 4. Create Round: Mongoose expects ONLY the IDs here!
     const round = new Round({
-      playerId, // Uses player ID (string) from req.body
-      courseId, // Uses course ID (string) from req.body
+      player,
+      course,
       scores,
       date: new Date(),
     });
 
     let newRound = await round.save();
 
-    console.log("Jdu populovat ");
-
-    newRound = await newRound
-      .populate("player", PLAYER_FIELDS)
-      .populate("course", COURSE_FIELDS);
-
-    console.log("Jsem hotov s populováním");
-    res.status(201).json(newRound);
+    res.status(201).json({ id: newRound._id });
   } catch (err) {
     // Catches Mongoose validation errors
     res.status(400).json({ message: err.message });
