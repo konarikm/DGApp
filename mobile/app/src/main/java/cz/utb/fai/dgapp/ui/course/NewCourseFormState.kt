@@ -1,4 +1,4 @@
-package cz.utb.fai.dgapp.ui
+package cz.utb.fai.dgapp.ui.course
 
 import java.util.Collections
 

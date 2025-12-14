@@ -7,7 +7,7 @@ data class Round (
     val player: Player,
     val course: Course,
     val scores: List<Int>,
-    val date: String,
+    val date: LocalDate,
     val totalScore: Int,
     val totalPar: Int,
     val parScore: Int

@@ -1,24 +1,42 @@
-package cz.utb.fai.dgapp.ui
+package cz.utb.fai.dgapp.ui.course
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.*
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import cz.utb.fai.dgapp.domain.Course
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import cz.utb.fai.dgapp.domain.Course
+import cz.utb.fai.dgapp.ui.course.CoursesUiState
 
 /**
  * Dedicated screen for viewing and managing disc golf courses.
@@ -93,30 +111,30 @@ fun CoursesScreen(
                         }
                     }
                 },
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .padding(top = 8.dp, bottom = 16.dp)
             )
 
             // Content based on state
-            Box (modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.Companion.fillMaxSize()) {
                 when {
                     uiState.isLoading -> {
                         CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.Companion.align(Alignment.Companion.Center)
                         )
                     }
 
                     uiState.errorMessage != null -> {
                         Text(
                             text = uiState.errorMessage,
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.Companion.align(Alignment.Companion.Center)
                         )
                     }
 
                     else -> {
                         LazyColumn(
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .fillMaxSize()
                                 .padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -144,17 +162,17 @@ fun CourseItem(course: Course, onItemClick: (String) -> Unit) {
     val totalPar = course.parValues.sum()
 
     Card(
-        modifier = Modifier
+        modifier = Modifier.Companion
             .fillMaxWidth()
-            .clickable{ onItemClick(course.id) }
+            .clickable { onItemClick(course.id) }
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.Companion.padding(12.dp)) {
             Text(
                 text = course.name,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Companion.Bold
             )
-            course.location?.let { Text(text = it, fontStyle = FontStyle.Italic) }
+            course.location?.let { Text(text = it, fontStyle = FontStyle.Companion.Italic) }
             Text(text = "Par: $totalPar")
         }
     }

@@ -1,6 +1,13 @@
-package cz.utb.fai.dgapp.ui
+package cz.utb.fai.dgapp.ui.course
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -9,8 +16,23 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -29,7 +51,7 @@ fun EditCourseScreen(
     modifier: Modifier = Modifier
 ) {
     // 1. Internal state of the form (used for editing inputs)
-    var formState by remember(courseId) { mutableStateOf(EditCourseFormState(courseId = courseId)) }
+    var formState by remember(courseId) { mutableStateOf(CourseEditFormState(courseId = courseId)) }
 
     // 2. State management for loading/saving
     val scrollState = rememberScrollState()
@@ -85,7 +107,7 @@ fun EditCourseScreen(
                         onUpdateCourse(updatedCourse)
                     },
                     enabled = isFormValid && !uiState.isLoading,
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
@@ -102,7 +124,7 @@ fun EditCourseScreen(
                 .verticalScroll(scrollState)
         ) {
             if (uiState.isLoading) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                LinearProgressIndicator(modifier = Modifier.Companion.fillMaxWidth())
             }
             if (uiState.errorMessage != null) {
                 Text("Error loading data: ${uiState.errorMessage}")
@@ -110,48 +132,54 @@ fun EditCourseScreen(
 
             // Only show form fields if data is successfully loaded
             if (isDataLoaded) {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.Companion.height(16.dp))
 
                 // --- BASIC INFO ---
                 OutlinedTextField(
                     value = formState.name,
-                    onValueChange = { formState = formState.copy(name = it, location = formState.location, description = formState.description) },
+                    onValueChange = {
+                        formState = formState.copy(
+                            name = it,
+                            location = formState.location,
+                            description = formState.description
+                        )
+                    },
                     label = { Text("Course Name*") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.Companion.fillMaxWidth()
                 )
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.Companion.height(8.dp))
                 OutlinedTextField(
                     value = formState.location,
                     onValueChange = { formState = formState.copy(location = it) },
                     label = { Text("Location") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.Companion.fillMaxWidth()
                 )
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.Companion.height(8.dp))
                 OutlinedTextField(
                     value = formState.description,
                     onValueChange = { formState = formState.copy(description = it) },
                     label = { Text("Description") },
                     minLines = 3,
                     maxLines = 5,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.Companion.fillMaxWidth()
                 )
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.Companion.height(24.dp))
 
                 // --- DYNAMIC PAR INPUTS ---
                 Text(
                     text = "Edit Par Values (min=3, max=5)*",
                     style = MaterialTheme.typography.titleMedium
                 )
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.Companion.height(12.dp))
 
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     // Constrain height within the scrolling Column
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .heightIn(max = 800.dp)
                         .fillMaxWidth()
                 ) {
@@ -172,13 +200,13 @@ fun EditCourseScreen(
                             label = { Text("Hole $holeNumber") },
                             // Show error if value is outside 3-5 range
                             isError = parValueString.toIntOrNull() !in 3..5,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Companion.Number),
                             singleLine = true,
-                            modifier = Modifier.height(60.dp)
+                            modifier = Modifier.Companion.height(60.dp)
                         )
                     }
                 }
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.Companion.height(16.dp))
             }
         }
     }

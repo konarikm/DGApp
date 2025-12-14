@@ -1,11 +1,29 @@
-package cz.utb.fai.dgapp.ui
+package cz.utb.fai.dgapp.ui.course
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,7 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
+import cz.utb.fai.dgapp.ui.course.NewCourseFormState
 
 /**
  * Screen for entering details of a new disc golf course.
@@ -55,7 +73,7 @@ fun AddNewCourseScreen(
                         onSaveCourse(formState)
                     },
                     enabled = isFormValid,
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
@@ -65,7 +83,7 @@ fun AddNewCourseScreen(
         }
     ) { padding ->
         // Content: Placeholder for the form fields
-        Column (
+        Column(
             modifier = modifier
                 .fillMaxSize()
                 .padding(padding)
@@ -78,35 +96,35 @@ fun AddNewCourseScreen(
                 onValueChange = { formState = formState.copy(name = it) },
                 label = { Text("Course Name*") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.Companion.fillMaxWidth()
 
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.Companion.height(8.dp))
             OutlinedTextField(
                 value = formState.location,
                 onValueChange = { formState = formState.copy(location = it) },
                 label = { Text("Location") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.Companion.fillMaxWidth()
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.Companion.height(8.dp))
             OutlinedTextField(
                 value = formState.description,
                 onValueChange = { formState = formState.copy(description = it) },
                 label = { Text("Description") },
                 minLines = 3,
                 maxLines = 6,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.Companion.fillMaxWidth()
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.Companion.height(24.dp))
 
             // --- HOLE COUNT TOGGLE ---
             Text(
                 text = "Number of Holes:",
                 style = MaterialTheme.typography.titleMedium
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.Companion.height(8.dp))
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -131,7 +149,7 @@ fun AddNewCourseScreen(
                     else ButtonDefaults.outlinedButtonColors()
                 ) { Text("18 Holes") }
             }
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.Companion.height(24.dp))
 
             // --- PAR INFO DISPLAY (Simplification) ---
             Text(

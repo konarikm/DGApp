@@ -1,14 +1,14 @@
-package cz.utb.fai.dgapp.ui
+package cz.utb.fai.dgapp.ui.course
 
-import java.util.Collections.nCopies
+import java.util.Collections
 
-data class EditCourseFormState(
+data class CourseEditFormState(
     val courseId: String = "",
     val name: String = "",
     val location: String = "",
     val description: String = "",
     val numberOfHoles: Int = 9,
-    val parValues: List<String> = nCopies(9, "3") // Par values as strings for editing
+    val parValues: List<String> = Collections.nCopies(9, "3") // Par values as strings for editing
 ) {
     /** Helper to check if Par values are valid (3-5). */
     val areParValuesValid: Boolean

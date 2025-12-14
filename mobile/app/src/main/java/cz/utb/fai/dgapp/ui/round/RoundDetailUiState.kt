@@ -1,9 +1,9 @@
-package cz.utb.fai.dgapp.ui
+package cz.utb.fai.dgapp.ui.round
 
 import cz.utb.fai.dgapp.domain.Round
 
-data class RoundsHistoryUiState(
+data class RoundDetailUiState(
     val isLoading: Boolean = false,
-    val rounds: List<Round> = emptyList(),
+    val round: Round? = null,
     val errorMessage: String? = null
 )

@@ -1,70 +1,56 @@
 package cz.utb.fai.dgapp.data.remote
 
-import kotlinx.coroutines.delay
+import androidx.compose.ui.tooling.data.R
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Retrofit
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 
+// Retrofit Setup
+private const val BASE_URL = "https://dgapp-api.onrender.com/"
+private val json = Json { ignoreUnknownKeys = true }
+
+/**
+ * Creates the Retrofit instance and the RoundApiService implementation.
+ */
+private val retrofit: Retrofit = Retrofit.Builder()
+    .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+    .baseUrl(BASE_URL)
+    .build()
+
+private val roundApiService: RoundApiService = retrofit.create(RoundApiService::class.java)
+
+/**
+ * Actual implementation of the remote data source using Retrofit.
+ * Handles fetching Round data from the deployed API.
+ */
 class RoundRemoteDataSource{
 
-    // Define mock data constants for easy readability
-    private val MOCK_PLAYER_MARTIN = PlayerApiDto(
-        id = "6918e4c190ea5c4759d49dd6",
-        name = "Martin Konarik",
-        pdgaNumber = 210450,
-        email = "martink@email.com"
-    )
-
-    private val MOCK_PLAYER_PETR = PlayerApiDto(
-        id = "69331232f43ad2a8a0dfb9ba",
-        name = "Petr Svoboda",
-        pdgaNumber = null,
-        email = "petr.svoboda@example.com"
-    )
-
-    private val MOCK_COURSE_LAGUNA = CourseApiDto(
-        id = "6918e1e390ea5c4759d49dcc",
-        name = "DiscgolfPark Laguna Přerov",
-        location = "Přerov, Czechia",
-        description = null,
-        numberOfHoles = 9,
-        parValues = listOf(3, 3, 3, 3, 3, 3, 3, 3, 3)
-    )
-
-    private val MOCK_COURSE_TUCIN = CourseApiDto(
-        id = "6918e20c90ea5c4759d49dce",
-        name = "DiscgolfPark Tučín",
-        location = "Tučín, Czechia",
-        description = null,
-        numberOfHoles = 10,
-        parValues = listOf(3, 3, 3, 3, 3, 3, 3, 4, 3, 3)
-    )
-
-    // FAKE REST - simulace síťového volání
+    /**
+     * Implements GET ALL rounds from the API.
+     */
     suspend fun getRounds(): List<RoundApiDto> {
-        delay(1000)
+        return roundApiService.getRounds()
+    }
 
-        return listOf(
-            RoundApiDto(
-                id = "1",
-                player = MOCK_PLAYER_MARTIN,
-                course = MOCK_COURSE_LAGUNA,
-                scores = listOf(2, 2, 2, 2, 2, 2, 2, 2, 2),
-                date = "2025-01-01",
-            ),
+    /**
+     * Implements GET by ID from the API.
+     */
+    suspend fun getRoundById(id: String): RoundApiDto {
+        return roundApiService.getRoundById(id)
+    }
 
-            RoundApiDto(
-                id = "2",
-                player = MOCK_PLAYER_PETR,
-                course = MOCK_COURSE_LAGUNA,
-                scores = listOf(3, 4, 3, 5, 3, 3, 3, 3, 3),
-                date = "2025-10-12"
-            ),
+    /**
+     * Implements UPDATE (PUT) via the API.
+     */
+    suspend fun updateRound(roundDto: RoundApiDto): RoundUpdatedApiDto {
+        return roundApiService.updateRound(roundDto.id, roundDto)
+    }
 
-            RoundApiDto(
-                id = "3",
-                player = MOCK_PLAYER_MARTIN,
-                course = MOCK_COURSE_TUCIN,
-                scores = listOf(3, 3, 3, 3, 3, 3, 3, 3, 3, 2),
-                date = "2025-07-23"
-            ),
-        )
+    /**
+     * Implements DELETE via the API.
+     */
+    suspend fun deleteRound(id: String) {
+        roundApiService.deleteRound(id)
     }
 }

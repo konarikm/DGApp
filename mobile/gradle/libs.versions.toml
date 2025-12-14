@@ -19,6 +19,7 @@ retrofit2KotlinxSerializationConverter = "1.0.0"
 roomCompiler = "2.8.4"
 runtime = "1.10.0"
 foundation = "1.10.0"
+roomKtx = "2.8.4"
 
 [libraries]
 androidx-compose-material = { module = "androidx.compose.material:material", version.ref = "material" }
@@ -53,6 +54,7 @@ androidx-compose-foundation = { group = "androidx.compose.foundation", name = "f
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit2KotlinxSerializationConverter" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

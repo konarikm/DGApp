@@ -1,4 +1,4 @@
-package cz.utb.fai.dgapp.ui
+package cz.utb.fai.dgapp.ui.course
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,8 +8,16 @@ import cz.utb.fai.dgapp.data.local.CourseLocalDataSource
 import cz.utb.fai.dgapp.data.remote.CourseRemoteDataSource
 import cz.utb.fai.dgapp.domain.Course
 import cz.utb.fai.dgapp.domain.CourseRepository
+import cz.utb.fai.dgapp.ui.course.NewCourseFormState
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
@@ -84,7 +92,6 @@ class CoursesViewModel(private val repository: CourseRepository) : ViewModel() {
             _courseDetailState.update { it.copy(isLoading = true, errorMessage = null, course = null) }
 
             try {
-                // Assuming repository has getCourseById method
                 val course = repository.getCourseById(courseId)
 
                 _courseDetailState.update {
@@ -164,6 +171,7 @@ class CoursesViewModel(private val repository: CourseRepository) : ViewModel() {
                         errorMessage = null
                     )
                 }
+
                 // 3. Refresh the list view after successful update
                 loadCourses(_searchQuery.value, forceRefresh = true)
 

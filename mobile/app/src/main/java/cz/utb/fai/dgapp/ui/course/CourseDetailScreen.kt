@@ -1,6 +1,13 @@
-package cz.utb.fai.dgapp.ui
+package cz.utb.fai.dgapp.ui.course
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -10,20 +17,33 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-
+import androidx.compose.ui.unit.dp
+import cz.utb.fai.dgapp.ui.course.CourseDetailUiState
 
 /**
  * Screen for displaying details of a specific course.
@@ -59,7 +79,10 @@ fun CourseDetailScreen(
                 title = { Text("Course Detail") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to courses")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back to courses"
+                        )
                     }
                 },
                 actions = {
@@ -83,7 +106,6 @@ fun CourseDetailScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp),
-            // horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             when {
                 // Loading state
@@ -100,37 +122,57 @@ fun CourseDetailScreen(
                 uiState.course != null -> {
                     val course = uiState.course
                     Column(
-                        modifier = Modifier.fillMaxWidth().verticalScroll(scrollState),
+                        modifier = Modifier.Companion.fillMaxWidth().verticalScroll(scrollState),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
                                 text = course.name,
                                 style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Companion.Bold
                             )
 
                             course.location?.takeIf { it.isNotBlank() }?.let { location ->
-                                Text(text = location, style = MaterialTheme.typography.titleMedium, fontStyle = FontStyle.Italic)
+                                Text(
+                                    text = location,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontStyle = FontStyle.Companion.Italic
+                                )
                             }
                         }
 
                         course.description?.takeIf { it.isNotBlank() }?.let { description ->
                             HorizontalDivider()
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(text = "Description:", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                                Text(text = description, style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    text = "Description:",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Companion.Bold
+                                )
+                                Text(
+                                    text = description,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                             }
                         }
 
                         HorizontalDivider()
-                        Text(text = "Number of Holes: ${course.numberOfHoles}", style = MaterialTheme.typography.titleMedium)
-                        Text(text = "Total Par: ${course.parValues.sum()}", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = "Number of Holes: ${course.numberOfHoles}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Total Par: ${course.parValues.sum()}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
 
-                        Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.Companion.height(16.dp))
 
                         // --- Dynamic PAR Values Grid ---
-                        Text(text = "Par Values by Hole:", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = "Par Values by Hole:",
+                            style = MaterialTheme.typography.titleMedium
+                        )
 
                         // Using a simple grid of fixed height to display the dynamically indexed PAR values
                         // Use a fixed height to avoid complex nested scrolling issues, relying on the parent Column scroll
@@ -139,7 +181,7 @@ fun CourseDetailScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             // Set a maximum height to constrain the LazyGrid within the verticalScroll parent
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .heightIn(max = 400.dp)
                                 .fillMaxWidth()
                         ) {
@@ -148,7 +190,7 @@ fun CourseDetailScreen(
                                 ParValueItem(holeNumber = index + 1, par = par)
                             }
                         }
-                        Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.Companion.height(16.dp))
                     }
                 }
                 // Initial state (should not happen after LaunchedEffect)
@@ -161,7 +203,6 @@ fun CourseDetailScreen(
 
     // --- CONFIRMATION DIALOG ---
     if (showDeleteDialog) {
-        val courseName = uiState.course?.name ?: "toto hřiště"
         AlertDialog(
             onDismissRequest = {
                 // Dismiss the dialog when the user clicks outside or presses back
@@ -171,7 +212,7 @@ fun CourseDetailScreen(
                 Text("Confirm Deletion")
             },
             text = {
-                Text("Do you really want to delete the course? This action cannot be undone.")
+                Text("Do you really want to delete the course? This action cannot be undone!")
             },
             confirmButton = {
                 Button(
@@ -206,16 +247,16 @@ fun CourseDetailScreen(
 @Composable
 fun ParValueItem(holeNumber: Int, par: Int) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.Companion.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .padding(8.dp)
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Companion.CenterHorizontally
         ) {
             Text(
                 text = "Hole $holeNumber",
@@ -224,7 +265,7 @@ fun ParValueItem(holeNumber: Int, par: Int) {
             Text(
                 text = par.toString(),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Companion.Bold
             )
         }
     }
