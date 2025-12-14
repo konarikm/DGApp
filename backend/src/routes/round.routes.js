@@ -118,11 +118,8 @@ router.put("/:id", async (req, res) => {
     // 3. Save the updated document (triggers validation)
     let updatedRound = await round.save();
 
-    // CRITICAL FIX: Repopulate player and course details before sending the response
-    // The frontend expects the full, nested DTO structure (RoundApiDto).
-    updatedRound = await updatedRound
-      .populate("player", PLAYER_FIELDS)
-      .populate("course", COURSE_FIELDS);
+    console.log("Updated round z backendu:");
+    console.log(updatedRound);
 
     res.json(updatedRound);
   } catch (err) {
