@@ -10,6 +10,7 @@ const COURSE_FIELDS = "name location numberOfHoles description parValues";
 router.get("/", async (req, res) => {
   try {
     const rounds = await Round.find()
+      .sort({ date: -1 })
       .populate("player", PLAYER_FIELDS)
       .populate("course", COURSE_FIELDS);
     res.json(rounds);
