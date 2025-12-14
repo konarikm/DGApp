@@ -102,29 +102,10 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ message: "Round not found" });
     }
 
-    // CRITICAL FIX: Extract the scores array and optionally the date from req.body.
-    // Ensure we exclude Mongoose system fields like _id.
-    const { _id, scores, date, ...otherUpdates } = req.body;
+    const { _id, ...updateData } = req.body;
 
     // 2. Apply updates manually to the Mongoose document instance
-    if (scores && Array.isArray(scores)) {
-      // Direct assignment to Mongoose array is necessary to trigger change tracking and validators
-      round.scores = scores;
-
-      // OPTIONAL: If date is present in body, update it (we removed it from UI, but keep for API robustness)
-      if (date) {
-        round.date = date;
-      }
-
-      // Apply any other updates (though we only edit scores in the UI)
-      Object.assign(round, otherUpdates);
-    } else if (otherUpdates) {
-      // If only other fields were sent (e.g., date), assign them
-      Object.assign(round, otherUpdates);
-    }
-
-    // NOTE: Scores validation logic (length check) relies on the schema validator
-    // which runs during round.save()
+    Object.assign(round, updateData);
 
     // 3. Save the updated document (triggers full validation and pre-save hooks)
     const updatedRound = await round.save();
