@@ -60,7 +60,6 @@ router.get("/course/:id", async (req, res) => {
 // CREATE round
 router.post("/", async (req, res) => {
   // 1. Destructure player and course using the *new* names for incoming IDs from req.body.
-  // We rename 'course' from req.body to 'courseId' locally for clear naming in step 3.
   const { playerId, courseId, scores } = req.body;
 
   try {
@@ -81,7 +80,7 @@ router.post("/", async (req, res) => {
     // 4. Create Round: Mongoose expects ONLY the IDs here!
     const round = new Round({
       playerId, // Uses player ID (string) from req.body
-      course: courseId, // Uses course ID (string) from req.body
+      courseId, // Uses course ID (string) from req.body
       scores,
       date: new Date(),
     });
