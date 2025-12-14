@@ -61,7 +61,7 @@ router.get("/course/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   // 1. Destructure player and course using the *new* names for incoming IDs from req.body.
   // We rename 'course' from req.body to 'courseId' locally for clear naming in step 3.
-  const { player, course: courseId, scores } = req.body;
+  const { player: playerId, course: courseId, scores } = req.body;
 
   try {
     // 2. Check if the course exists and get its hole count
@@ -80,13 +80,21 @@ router.post("/", async (req, res) => {
 
     // 4. Create Round: Mongoose expects ONLY the IDs here!
     const round = new Round({
-      player, // Uses player ID (string) from req.body
+      playerId, // Uses player ID (string) from req.body
       course: courseId, // Uses course ID (string) from req.body
       scores,
       date: new Date(),
     });
 
-    const newRound = await round.save();
+    let newRound = await round.save();
+
+    console.log("Jdu populovat ");
+
+    newRound = await newRound
+      .populate("playerId", PLAYER_FIELDS)
+      .populate("courseId", COURSE_FIELDS);
+
+    console.log("Jsem hotov s populováním");
     res.status(201).json(newRound);
   } catch (err) {
     // Catches Mongoose validation errors
