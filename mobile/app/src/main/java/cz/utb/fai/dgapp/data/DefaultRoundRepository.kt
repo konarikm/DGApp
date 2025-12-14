@@ -2,6 +2,7 @@ package cz.utb.fai.dgapp.data
 
 import cz.utb.fai.dgapp.data.local.RoundLocalDataSource
 import cz.utb.fai.dgapp.data.mappers.toApiDto
+import cz.utb.fai.dgapp.data.mappers.toCreateApiDto
 import cz.utb.fai.dgapp.data.remote.RoundRemoteDataSource
 import cz.utb.fai.dgapp.domain.RoundRepository
 import cz.utb.fai.dgapp.data.mappers.toDomain
@@ -46,6 +47,24 @@ class DefaultRoundRepository(
 
             return domainRound
         }
+    }
+
+    override suspend fun createRound(round: Round): Round {
+        // 1. Convert Domain model to the CREATE DTO (sends only FKs and scores)
+        val createDto = round.toCreateApiDto()
+
+        // 2. Call remote API to create the round (returns only RoundCreationResponseDto)
+        val response = remoteDataSource.createRound(createDto)
+
+        // 3. Since the API only returned the ID, we update the local cache using the
+        // original Domain object, which now needs to have the new ID assigned.
+        val roundWithId = round.copy(id = response.id)
+
+        // 4. Update local cache (saves player, course, and round)
+        localDataSource.saveRound(roundWithId)
+
+        // 5. Return the domain model with the new ID
+        return roundWithId
     }
 
     override suspend fun updateRound(round: Round): Round {

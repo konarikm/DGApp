@@ -15,6 +15,11 @@ interface RoundRepository {
     suspend fun getRoundById(id: String): Round
 
     /**
+     * Saves a new Round to the remote API and local cache. (POST)
+     */
+    suspend fun createRound(round: Round): Round
+
+    /**
      * Updates an existing Round on the remote API and updates the local cache. (PUT)
      */
     suspend fun updateRound(round: Round): Round

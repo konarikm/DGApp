@@ -69,14 +69,12 @@ fun Round.toApiDto(): RoundApiDto {
 
 /**
  * Converts Domain model to RoundCreateApiDto for POST/CREATE requests (no ID).
- * Assumes a RoundCreateApiDto exists, which only takes FKs and scores.
  */
 fun Round.toCreateApiDto(): RoundCreateApiDto {
     return RoundCreateApiDto(
-        playerId = this.player.id,
-        courseId = this.course.id,
+        player = this.player.id,
+        course = this.course.id,
         scores = this.scores,
-        date = this.date.toString()
     )
 }
 

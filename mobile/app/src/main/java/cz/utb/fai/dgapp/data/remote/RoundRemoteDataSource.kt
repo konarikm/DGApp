@@ -41,6 +41,13 @@ class RoundRemoteDataSource{
     }
 
     /**
+     * Implements CREATE (POST) via the API.
+     */
+    suspend fun createRound(roundDto: RoundCreateApiDto): RoundCreationResponseDto {
+        return roundApiService.createRound(roundDto)
+    }
+
+    /**
      * Implements UPDATE (PUT) via the API.
      */
     suspend fun updateRound(roundDto: RoundApiDto): RoundUpdatedApiDto {
