@@ -5,7 +5,6 @@ import cz.utb.fai.dgapp.data.mappers.toApiDto
 import cz.utb.fai.dgapp.data.remote.RoundRemoteDataSource
 import cz.utb.fai.dgapp.domain.RoundRepository
 import cz.utb.fai.dgapp.data.mappers.toDomain
-import cz.utb.fai.dgapp.data.mappers.toEntity
 import cz.utb.fai.dgapp.domain.Round
 
 class DefaultRoundRepository(
@@ -20,7 +19,7 @@ class DefaultRoundRepository(
             val remoteDtos = remoteDataSource.getRounds()
             val domainRounds = remoteDtos.map{ it.toDomain() }
 
-            localDataSource.saveRounds(domainRounds.map{ it.toEntity() })
+            localDataSource.saveRounds(domainRounds)
 
             domainRounds
         } else {
@@ -43,7 +42,7 @@ class DefaultRoundRepository(
             val domainRound = remoteDto.toDomain()
 
             // 4. Cache the new data
-            localDataSource.saveRound(domainRound.toEntity())
+            localDataSource.saveRound(domainRound)
 
             return domainRound
         }
@@ -61,7 +60,7 @@ class DefaultRoundRepository(
 
         // 3. Since the API only returns ID, we update the local cache using the
         // original domain model, which now contains the updated scores/date.
-        localDataSource.saveRound(round.toEntity())
+        localDataSource.saveRound(round)
 
         // 4. Return the updated domain model itself.
         return round

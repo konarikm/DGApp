@@ -1,11 +1,16 @@
 package cz.utb.fai.dgapp.ui.course
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import cz.utb.fai.dgapp.data.DefaultCourseRepository
+import cz.utb.fai.dgapp.data.local.AppDatabase
 import cz.utb.fai.dgapp.data.local.CourseLocalDataSource
 import cz.utb.fai.dgapp.data.remote.CourseRemoteDataSource
+import cz.utb.fai.dgapp.data.remote.RoundRemoteDataSource
 import cz.utb.fai.dgapp.domain.Course
 import cz.utb.fai.dgapp.domain.CourseRepository
 import cz.utb.fai.dgapp.ui.course.NewCourseFormState
@@ -219,18 +224,26 @@ class CoursesViewModel(private val repository: CourseRepository) : ViewModel() {
         }
     }
 
-    // --- Factory (needed for integration with Compose) ---
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                // Mock dependencies for the factory (replace with real injection)
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                // Get the application context from the AndroidViewModelFactory context
+                val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as Application
+
+                // Initialize the Room database singleton
+                val database = AppDatabase.getDatabase(application.applicationContext)
+
+                // Instantiate the data source with the Room DAO
+                val localDataSource = CourseLocalDataSource(database.courseDao())
+
+                // Instantiate the remote data source
+                val remoteDataSource = CourseRemoteDataSource()
+
                 val repository = DefaultCourseRepository(
-                    CourseRemoteDataSource(),
-                    // NOTE: localDataSource should be a proper Room implementation
-                    CourseLocalDataSource()
+                    remoteDataSource = remoteDataSource,
+                    localDataSource = localDataSource // Use the Room-backed data source
                 )
-                return CoursesViewModel(repository) as T
+                CoursesViewModel(repository)
             }
         }
     }

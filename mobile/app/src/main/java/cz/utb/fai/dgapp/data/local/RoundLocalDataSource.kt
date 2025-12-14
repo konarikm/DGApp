@@ -1,77 +1,65 @@
 package cz.utb.fai.dgapp.data.local
 
-import kotlinx.coroutines.delay
-import java.util.concurrent.ConcurrentHashMap
+import cz.utb.fai.dgapp.domain.Round
+import cz.utb.fai.dgapp.data.mappers.toEntity as toEntityCourse
+import cz.utb.fai.dgapp.data.mappers.toEntity as toEntityPlayer
+import cz.utb.fai.dgapp.data.mappers.toEntity as toEntityRound
 
 /**
- * Fake "Room" datasource – drží data jen v paměti.
- * NOTE: The implementation must now return the joined structure (RoundWithDetails)
- * to simulate the Room DAO behavior.
+ * Local datasource implementation using Room database (RoundDao).
  */
+class RoundLocalDataSource(
+    // Inject all necessary DAOs
+    private val roundDao: RoundDao,
+    private val playerDao: PlayerDao,
+    private val courseDao: CourseDao
+) {
 
-// Global cache for simpler entities (used internally for building RoundWithDetails)
-private val roundCache: ConcurrentHashMap<String, RoundEntity> = ConcurrentHashMap()
-private val playerCache: ConcurrentHashMap<String, PlayerEntity> = ConcurrentHashMap()
-private val courseCache: ConcurrentHashMap<String, CourseEntity> = ConcurrentHashMap()
-
-class RoundLocalDataSource{
-    // Initialize some mock data for the detail view to work
-    init {
-        val converters = Converters()
-        val player = PlayerEntity("p1", "Mock Player", 100, "mock@example.com")
-        val course = CourseEntity(
-            "c1", "Mock Course (9)", "Mock Location", null, 9,
-            converters.fromIntList(listOf(3, 3, 3, 3, 3, 3, 3, 3, 3))
-        )
-        val round = RoundEntity("r1", player.id, course.id, converters.fromIntList(listOf(3, 4, 3, 3, 3, 3, 3, 3, 3)), "2025-12-13")
-
-        playerCache[player.id] = player
-        courseCache[course.id] = course
-        roundCache[round.id] = round
+    /**
+     * Retrieves all rounds, joined with details, from the Room database.
+     */
+    suspend fun getRounds(): List<RoundWithDetails> {
+        return roundDao.getAllRoundsWithDetails()
     }
 
-    // Return the joined structure
-    suspend fun getRounds(): List<RoundWithDetails> {
-        delay(200)
-        // In a real app, this would be a single Room query returning List<RoundWithDetails>
-        return roundCache.values.mapNotNull { roundEntity ->
-            val playerEntity = playerCache[roundEntity.playerId]
-            val courseEntity = courseCache[roundEntity.courseId]
-            if (playerEntity != null && courseEntity != null) {
-                RoundWithDetails(roundEntity, playerEntity, courseEntity)
-            } else null
+    /**
+     * Retrieves a specific round with details by ID from the Room database.
+     */
+    suspend fun getRoundById(id: String): RoundWithDetails? {
+        return roundDao.getRoundWithDetailsById(id)
+    }
+
+    /**
+     * Saves a list of rounds and their nested player/course entities to the database.
+     */
+    suspend fun saveRounds(rounds: List<Round>) {
+        rounds.forEach { round ->
+            // We must save the nested entities (Player/Course) first
+            playerDao.insertPlayer(round.player.toEntityPlayer())
+            courseDao.insertCourse(round.course.toEntityCourse())
+
+            // Then save the round itself
+            roundDao.insertRound(round.toEntityRound())
         }
     }
 
     /**
-     * Returns a single RoundWithDetails object for detail view.
+     * Saves a single round and its nested entities to the database.
      */
-    suspend fun getRoundById(id: String): RoundWithDetails? {
-        delay(100)
-        // In a real app, this would be a single Room query returning RoundWithDetails?
-        val roundEntity = roundCache[id]
-        val playerEntity = roundEntity?.let { playerCache[it.playerId] }
-        val courseEntity = roundEntity?.let { courseCache[it.courseId] }
+    suspend fun saveRound(round: Round) {
+        // Save player and course entities first
+        playerDao.insertPlayer(round.player.toEntityPlayer())
+        courseDao.insertCourse(round.course.toEntityCourse())
 
-        return if (roundEntity != null && playerEntity != null && courseEntity != null) {
-            RoundWithDetails(roundEntity, playerEntity, courseEntity)
-        } else null
+        // Then save the round itself
+        roundDao.insertRound(round.toEntityRound())
     }
 
-    // Input must accept the list of entities for caching
-    // Note: In a real app, saving would require multiple DAO calls (playerDao.insert, courseDao.insert, roundDao.insert)
-    suspend fun saveRounds(rounds: List<RoundEntity>) {
-        delay(200)
-        rounds.forEach { roundCache[it.id] = it }
-    }
-
-    suspend fun saveRound(round: RoundEntity) {
-        delay(100)
-        roundCache[round.id] = round
-    }
-
+    /**
+     * Deletes a round by ID from the Room database.
+     */
     suspend fun deleteRound(id: String) {
-        delay(100)
-        roundCache.remove(id)
+        roundDao.deleteRound(id)
+        // Player/Course entities are generally kept, as they may be referenced by other rounds.
     }
 }

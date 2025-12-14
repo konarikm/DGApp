@@ -103,6 +103,7 @@ fun CoursesScreen(
                 value = uiState.searchQuery,
                 onValueChange = onSearchQueryChange,
                 label = { Text("Search course by name") },
+                singleLine = true,
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search Icon") },
                 trailingIcon = {
                     if (uiState.searchQuery.isNotEmpty()) {

@@ -107,13 +107,13 @@ fun RoundItem(round: Round, onRoundClick: (String) -> Unit) {
             // Make the entire card clickable and pass the round ID
             .clickable { onRoundClick(round.id) }
     ) {
-        Column(modifier = Modifier.Companion.padding(12.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Row(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = round.course.name, style = MaterialTheme.typography.titleMedium)
-                Text(text = formattedDate, fontStyle = FontStyle.Companion.Italic)
+                Text(text = formattedDate, fontStyle = FontStyle.Italic)
             }
 
             Text(text = round.player.name)
@@ -121,7 +121,7 @@ fun RoundItem(round: Round, onRoundClick: (String) -> Unit) {
             // Displaying Par Score (e.g., +2 or -2) and Total Strokes (e.g., 27)
             Text(
                 text = "$parScorePrefix${round.parScore} (${round.totalScore})",
-                fontWeight = FontWeight.Companion.Bold
+                fontWeight = FontWeight.Bold
             )
         }
     }

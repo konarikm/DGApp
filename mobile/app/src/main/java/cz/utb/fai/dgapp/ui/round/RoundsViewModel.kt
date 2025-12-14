@@ -1,9 +1,13 @@
 package cz.utb.fai.dgapp.ui.round
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import cz.utb.fai.dgapp.data.DefaultRoundRepository
+import cz.utb.fai.dgapp.data.local.AppDatabase
 import cz.utb.fai.dgapp.data.local.RoundLocalDataSource
 import cz.utb.fai.dgapp.data.remote.RoundRemoteDataSource
 import cz.utb.fai.dgapp.domain.Round
@@ -163,16 +167,29 @@ class RoundsViewModel(private val repository: RoundRepository) : ViewModel() {
     }*/
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                // Mock dependencies for the factory (replace with real injection)
-                val repository = DefaultRoundRepository(
-                    RoundRemoteDataSource(),
-                    // NOTE: localDataSource should be a proper Room implementation
-                    RoundLocalDataSource()
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                // Get the application context from the AndroidViewModelFactory context
+                val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as Application
+
+                // Initialize the Room database singleton
+                val database = AppDatabase.getDatabase(application.applicationContext)
+
+                // Instantiate the local data source with all required DAOs
+                val localDataSource = RoundLocalDataSource(
+                    roundDao = database.roundDao(),
+                    playerDao = database.playerDao(),
+                    courseDao = database.courseDao()
                 )
-                return RoundsViewModel(repository) as T
+
+                // Instantiate the remote data source
+                val remoteDataSource = RoundRemoteDataSource()
+
+                val repo = DefaultRoundRepository(
+                    remoteDataSource = remoteDataSource,
+                    localDataSource = localDataSource // Use the Room-backed data source
+                )
+                RoundsViewModel(repo)
             }
         }
     }

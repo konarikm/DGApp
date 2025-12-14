@@ -5,20 +5,24 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
+/**
+ * Round Entity for Room database. Represents the 'rounds' table.
+ * Uses Foreign Keys to link to PlayerEntity and CourseEntity.
+ */
 @Entity(
     tableName = "rounds",
     foreignKeys = [
         ForeignKey(
             entity = PlayerEntity::class,
             parentColumns = ["id"],
-            childColumns = ["playerId"],
-            onDelete = ForeignKey.CASCADE
+            childColumns = ["player_id"],
+            onDelete = ForeignKey.CASCADE // If player is deleted, delete the round
         ),
         ForeignKey(
             entity = CourseEntity::class,
             parentColumns = ["id"],
-            childColumns = ["courseId"],
-            onDelete = ForeignKey.RESTRICT
+            childColumns = ["course_id"],
+            onDelete = ForeignKey.NO_ACTION
         )
     ]
 )

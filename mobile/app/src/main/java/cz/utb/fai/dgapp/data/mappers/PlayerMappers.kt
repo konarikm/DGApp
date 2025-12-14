@@ -14,6 +14,16 @@ fun PlayerApiDto.toDomain(): Player {
     )
 }
 
+// Domain -> REST
+fun Player.toApiDto(): PlayerApiDto {
+    return PlayerApiDto(
+        id = this.id,
+        name = this.name,
+        pdgaNumber = this.pdgaNumber,
+        email = this.email
+    )
+}
+
 // Local -> Domain
 fun PlayerEntity.toDomain(): Player {
     return Player(
