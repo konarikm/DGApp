@@ -60,8 +60,7 @@ router.get("/course/:id", async (req, res) => {
 // CREATE round
 router.post("/", async (req, res) => {
   // 1. Destructure player and course using the *new* names for incoming IDs from req.body.
-  const { playerId, courseId, scores } = req.body;
-
+  const { player: playerId, course: courseId, scores } = req.body;
   try {
     // 2. Check if the course exists and get its hole count
     // Use courseId to find the document.
