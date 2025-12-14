@@ -61,7 +61,7 @@ router.get("/course/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   // 1. Destructure player and course using the *new* names for incoming IDs from req.body.
   // We rename 'course' from req.body to 'courseId' locally for clear naming in step 3.
-  const { player: playerId, course: courseId, scores } = req.body;
+  const { playerId, courseId, scores } = req.body;
 
   try {
     // 2. Check if the course exists and get its hole count
