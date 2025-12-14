@@ -2,4 +2,17 @@
 <resources>
 
     <style name="Theme.DGApp" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.DGApp.SplashScreen" parent="Theme.SplashScreen">
+        <!-- 1. Background color for the entire splash screen -->
+        <item name="windowSplashScreenBackground">@color/white</item>
+
+        <!-- 2. The drawable or mipmap resource to use as the icon -->
+        <!-- This should be your adaptive icon or a simple drawable -->
+        <!-- Ensure dgapp_icon_background exists in your drawable or mipmap folder -->
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+
+        <!-- 3. The theme to apply after the splash screen finishes -->
+        <item name="postSplashScreenTheme">@style/Theme.DGApp</item>
+    </style>
 </resources>

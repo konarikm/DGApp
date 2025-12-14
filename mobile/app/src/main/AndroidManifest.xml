@@ -14,8 +14,9 @@
         android:theme="@style/Theme.DGApp">
         <activity
             android:name=".MainActivity"
+            android:theme="@style/Theme.DGApp.SplashScreen"
             android:exported="true"
-            android:theme="@style/Theme.DGApp">
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

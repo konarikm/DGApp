@@ -89,6 +89,9 @@ dependencies {
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
 
+    // Splashscreen
+    implementation("androidx.core:core-splashscreen:1.0.0")
+
     configurations.all {
         exclude(group = "com.intellij", module = "annotations")
     }
