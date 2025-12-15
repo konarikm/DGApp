@@ -117,7 +117,7 @@ fun RoundDetailScreen(
                     val round = uiState.round
                     val parScorePrefix = if (round.parScore > 0) "+" else ""
                     val dateFormatter =
-                        DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
+                        DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.getDefault())
                     val formattedDate = round.date.format(dateFormatter)
 
                     Column(

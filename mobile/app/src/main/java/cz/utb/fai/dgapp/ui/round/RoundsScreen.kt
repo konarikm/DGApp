@@ -95,7 +95,7 @@ fun RoundsScreen(
 
 @Composable
 fun RoundItem(round: Round, onRoundClick: (String) -> Unit) {
-    val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
+    val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.getDefault())
     val formattedDate = round.date.format(dateFormatter)
 
     // Determine the prefix for parScore

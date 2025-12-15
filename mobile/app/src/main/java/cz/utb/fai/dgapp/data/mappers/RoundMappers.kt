@@ -5,6 +5,7 @@ import cz.utb.fai.dgapp.data.local.RoundEntity
 import cz.utb.fai.dgapp.data.local.RoundWithDetails
 import cz.utb.fai.dgapp.data.remote.RoundApiDto
 import cz.utb.fai.dgapp.data.remote.RoundCreateApiDto
+import cz.utb.fai.dgapp.data.remote.RoundUpdatedApiDto
 import cz.utb.fai.dgapp.domain.Round
 import java.time.Instant
 import java.time.LocalDate

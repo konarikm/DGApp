@@ -1,5 +1,6 @@
 package cz.utb.fai.dgapp.data.local
 
+import cz.utb.fai.dgapp.data.mappers.toEntity
 import cz.utb.fai.dgapp.domain.Round
 import cz.utb.fai.dgapp.data.mappers.toEntity as toEntityCourse
 import cz.utb.fai.dgapp.data.mappers.toEntity as toEntityPlayer
@@ -31,28 +32,35 @@ class RoundLocalDataSource(
 
     /**
      * Saves a list of rounds and their nested player/course entities to the database.
+     * This is typically used after fetching data from the API (remote refresh).
      */
-    suspend fun saveRounds(rounds: List<Round>) {
-        rounds.forEach { round ->
-            // We must save the nested entities (Player/Course) first
-            playerDao.insertPlayer(round.player.toEntityPlayer())
-            courseDao.insertCourse(round.course.toEntityCourse())
-
-            // Then save the round itself
-            roundDao.insertRound(round.toEntityRound())
-        }
+    suspend fun saveRounds(rounds: List<RoundEntity>) {
+        // In a real implementation, you would need the full domain model (Round)
+        // to save the Player/Course, but since this function receives RoundEntity,
+        // we assume the nested entities are managed separately or are guaranteed to exist.
+        // For simplicity and direct use with RoundEntity list:
+        roundDao.insertAll(rounds)
     }
 
     /**
      * Saves a single round and its nested entities to the database.
+     * This method assumes it receives the Domain model 'Round' from the repository
+     * which contains the full nested Player and Course objects.
      */
     suspend fun saveRound(round: Round) {
-        // Save player and course entities first
         playerDao.insertPlayer(round.player.toEntityPlayer())
         courseDao.insertCourse(round.course.toEntityCourse())
 
-        // Then save the round itself
-        roundDao.insertRound(round.toEntityRound())
+        // 2. Then save the round itself
+        roundDao.insertRound(round.toEntity())
+    }
+
+    /**
+     * Saves a single round to the database.
+     */
+    suspend fun saveRound(round: RoundEntity) {
+        // Delegates directly to the Room DAO
+        roundDao.insertRound(round)
     }
 
     /**

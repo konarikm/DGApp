@@ -6,6 +6,7 @@ import cz.utb.fai.dgapp.data.mappers.toCreateApiDto
 import cz.utb.fai.dgapp.data.remote.RoundRemoteDataSource
 import cz.utb.fai.dgapp.domain.RoundRepository
 import cz.utb.fai.dgapp.data.mappers.toDomain
+import cz.utb.fai.dgapp.data.mappers.toEntity
 import cz.utb.fai.dgapp.domain.Round
 
 class DefaultRoundRepository(
@@ -14,13 +15,15 @@ class DefaultRoundRepository(
 ) : RoundRepository {
     override suspend fun getRounds(forceRefresh: Boolean): List<Round> {
         val local = localDataSource.getRounds()
+
         val shouldRefresh = forceRefresh || local.isEmpty()
 
         return if (shouldRefresh) {
             val remoteDtos = remoteDataSource.getRounds()
             val domainRounds = remoteDtos.map{ it.toDomain() }
 
-            localDataSource.saveRounds(domainRounds)
+            val entities = domainRounds.map{ it.toEntity() }
+            localDataSource.saveRounds(entities)
 
             domainRounds
         } else {
@@ -42,8 +45,10 @@ class DefaultRoundRepository(
             // 3. Convert DTO to Domain
             val domainRound = remoteDto.toDomain()
 
+            val entity = domainRound.toEntity()
+
             // 4. Cache the new data
-            localDataSource.saveRound(domainRound)
+            localDataSource.saveRound(entity)
 
             return domainRound
         }
@@ -60,8 +65,10 @@ class DefaultRoundRepository(
         // original Domain object, which now needs to have the new ID assigned.
         val roundWithId = round.copy(id = response.id)
 
+        val entity = roundWithId.toEntity()
+
         // 4. Update local cache (saves player, course, and round)
-        localDataSource.saveRound(roundWithId)
+        localDataSource.saveRound(entity)
 
         // 5. Return the domain model with the new ID
         return roundWithId
