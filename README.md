@@ -5,13 +5,13 @@ Tento projekt je závěrečnou prací do předmětů:
 - AP7PD - Pokročilé databázové systémy
 
 Aplikace umožní uživatelům:
-- Vyhledávat/Prohlížet discgolfová hřiště
+- Vyhledávat/Prohlížet/Vytvářet a Upravovat discgolfová hřiště
 - Zaznamenat skóre na jednotlivých jamkách na vybraném hřišti
-- Prohlížet skórkarty a zobrazit základní statistiky hráče
+- Prohlížet historii zaznamenaných kol a upravit skóre v dříve zaznamenaném kole
 
 ## Skruktura projektu
 - backend/ — Node.js + Express API s MongoDB (Atlas)
-- mobile/ — Android aplikace napsaná v jazyce Kotlin za použití Jetpack Compose
+- mobile/ — Android aplikace napsaná v jazyce Kotlin za použití Jetpack Compose (+RoomDB)
 
 ## Autor projektu
 - Martin Koňařík 
