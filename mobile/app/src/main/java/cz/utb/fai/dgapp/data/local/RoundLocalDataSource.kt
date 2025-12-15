@@ -4,7 +4,6 @@ import cz.utb.fai.dgapp.data.mappers.toEntity
 import cz.utb.fai.dgapp.domain.Round
 import cz.utb.fai.dgapp.data.mappers.toEntity as toEntityCourse
 import cz.utb.fai.dgapp.data.mappers.toEntity as toEntityPlayer
-import cz.utb.fai.dgapp.data.mappers.toEntity as toEntityRound
 
 /**
  * Local datasource implementation using Room database (RoundDao).
@@ -32,14 +31,21 @@ class RoundLocalDataSource(
 
     /**
      * Saves a list of rounds and their nested player/course entities to the database.
-     * This is typically used after fetching data from the API (remote refresh).
+     * Accepts the full Domain model list to access nested entities.
+     * This is used after fetching data from the API (remote refresh).
      */
-    suspend fun saveRounds(rounds: List<RoundEntity>) {
-        // In a real implementation, you would need the full domain model (Round)
-        // to save the Player/Course, but since this function receives RoundEntity,
-        // we assume the nested entities are managed separately or are guaranteed to exist.
-        // For simplicity and direct use with RoundEntity list:
-        roundDao.insertAll(rounds)
+    suspend fun saveRounds(rounds: List<Round>) {
+        // 1. Extract and save all unique Player and Course entities first
+        val playerEntities = rounds.map { it.player.toEntityPlayer() }.distinctBy { it.id }
+        val courseEntities = rounds.map { it.course.toEntityCourse() }.distinctBy { it.id }
+
+        // Use REPLACE strategy defined in DAO to update existing ones and insert new ones
+        playerDao.insertAll(playerEntities)
+        courseDao.insertAll(courseEntities)
+
+        // 2. Map rounds to RoundEntity and save them
+        val roundEntities = rounds.map { it.toEntity() }
+        roundDao.insertAll(roundEntities)
     }
 
     /**

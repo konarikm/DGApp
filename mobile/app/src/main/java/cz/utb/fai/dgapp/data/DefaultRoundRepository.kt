@@ -22,8 +22,7 @@ class DefaultRoundRepository(
             val remoteDtos = remoteDataSource.getRounds()
             val domainRounds = remoteDtos.map{ it.toDomain() }
 
-            val entities = domainRounds.map{ it.toEntity() }
-            localDataSource.saveRounds(entities)
+            localDataSource.saveRounds(domainRounds)
 
             domainRounds
         } else {
