@@ -38,6 +38,15 @@ class RoundsViewModel(private val repository: RoundRepository) : ViewModel() {
         _uiState.update { it.copy(saveSuccessMessage = null) }
     }
 
+    /**
+     * Sets a transient success message directly into the UiState.
+     * This is used by RootScreen after a successful navigation/data operation
+     * (e.g., finishing a new round).
+     */
+    fun setSaveSuccessMessage(message: String) {
+        _uiState.update { it.copy(saveSuccessMessage = message) }
+    }
+
     fun loadRounds(forceRefresh: Boolean) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
@@ -154,17 +163,6 @@ class RoundsViewModel(private val repository: RoundRepository) : ViewModel() {
             }
         }
     }
-
-    /*companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val remote = RoundRemoteDataSource()
-                val local = RoundLocalDataSource()
-                val repo = DefaultRoundRepository(remote, local)
-                RoundsViewModel(repo)
-            }
-        }
-    }*/
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

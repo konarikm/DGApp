@@ -103,28 +103,24 @@ fun RootScreen() {
                         LaunchedEffect(shouldForceHistoryRefresh) {
                             if (shouldForceHistoryRefresh) {
                                 vm.loadRounds(forceRefresh = true) // Fetch new list from API
+                                vm.setSaveSuccessMessage("New round saved successfully!")
                                 shouldForceHistoryRefresh = false // Reset signal
-
-                                snackbarHostState.showSnackbar(
-                                    message = "New round saved successfully!",
-                                    duration = SnackbarDuration.Short
-                                )
                             }
                         }
 
                         // Side effect: Handle operation message (delete, edit success)
                         uiState.saveSuccessMessage?.let { message ->
                             LaunchedEffect(message) {
+                                if (selectedRoundId != null || isEditingRound) {
+                                    selectedRoundId = null
+                                    isEditingRound = false
+                                }
+
                                 snackbarHostState.showSnackbar(
                                     message = message,
                                     duration = SnackbarDuration.Short
                                 )
                                 vm.clearSaveStatus() // Clear message after showing
-
-                                if (selectedRoundId != null || isEditingRound) {
-                                    selectedRoundId = null
-                                    isEditingRound = false
-                                }
                             }
                         }
 
