@@ -11,7 +11,7 @@ import androidx.room.Query
 @Dao
 interface CourseDao {
 
-    @Query("SELECT * FROM courses")
+    @Query("SELECT * FROM courses ORDER BY id")
     suspend fun getAllCourses(): List<CourseEntity>
 
     @Query("SELECT * FROM courses WHERE id = :courseId")

@@ -79,6 +79,8 @@ fun ScoringScreen(
                 val currentPar = uiState.course.parValues.getOrElse(currentIndex) { 3 }
                 val currentScore = uiState.scores.getOrElse(currentIndex) { currentPar }
 
+                val isFinalHole = currentIndex == totalHoles - 1
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -132,7 +134,7 @@ fun ScoringScreen(
                             text = "$currentScore",
                             fontSize = 96.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ScoreColor(currentScore, currentPar)
+                            color = scoreColor(currentScore, currentPar)
                         )
 
                         Spacer(Modifier.width(32.dp))
@@ -165,7 +167,7 @@ fun ScoringScreen(
                             enabled = currentIndex > 0,
                             modifier = Modifier.weight(1f).height(56.dp)
                         ) {
-                            Text("Previous")
+                            Text("Previous hole")
                         }
 
                         Spacer(Modifier.width(16.dp))
@@ -179,9 +181,15 @@ fun ScoringScreen(
                                     viewModel.finishRound()
                                 }
                             },
+                            // Change button colors for the final hole to emphasize FINISH
+                            colors = if (isFinalHole) {
+                                ButtonDefaults.buttonColors(containerColor = Color(0xFF28912D), contentColor = Color.White)
+                            } else {
+                                ButtonDefaults.buttonColors()
+                            },
                             modifier = Modifier.weight(1f).height(56.dp)
                         ) {
-                            Text(if (currentIndex < totalHoles - 1) "Next" else "FINISH")
+                            Text(if (currentIndex < totalHoles - 1) "Next hole" else "FINISH ROUND")
                         }
                     }
                 }
@@ -207,10 +215,14 @@ fun getScoreTerm(score: Int, par: Int): String {
 
 // Helper for color coding
 @Composable
-fun ScoreColor(score: Int, par: Int): Color {
+fun scoreColor(score: Int, par: Int): Color {
     return when {
-        score < par -> Color(0xFF4FC455) // Green for under par
-        score > par -> Color(0xFFAF3636) // Red for over par
-        else -> MaterialTheme.colorScheme.onBackground
+        score == 1 -> Color(0xFFF1DD7B) // Yellow for Ace
+        score - par == -2 -> Color(0xFF0583E1) // Blue for Eagle
+        score - par == -1 -> Color(0xFF28912D) // Green for under par
+        score == par -> MaterialTheme.colorScheme.onBackground
+        score - par == 1 -> Color(0xFFE83B3B) // Bogey
+        score - par == 2 -> Color(0xFF802222) // Double bogey
+        else -> Color(0xFF561919) // Triple bogey and worse
     }
 }
